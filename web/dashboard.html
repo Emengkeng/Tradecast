@@ -21,33 +21,46 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, sans-serif; font-size: 14px; min-height: 100vh; }
 
-  #loginScreen { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
-  .loginCard { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 40px; width: 360px; }
+  /* ---- Login ---- */
+  #loginScreen { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 16px; }
+  .loginCard { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 40px; width: 100%; max-width: 360px; }
   .loginCard h1 { font-size: 22px; margin-bottom: 6px; }
   .loginCard p { color: var(--muted); margin-bottom: 28px; font-size: 13px; }
   .loginCard .logo { font-size: 32px; margin-bottom: 16px; }
 
+  /* ---- App shell ---- */
   #app { display: none; }
-  .topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; height: 56px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 10; }
+  .topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 16px; height: 56px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 20; }
   .topbar .brand { font-weight: 700; font-size: 16px; display: flex; align-items: center; gap: 10px; }
-  .topbar-right { display: flex; align-items: center; gap: 12px; }
+  .topbar-right { display: flex; align-items: center; gap: 8px; }
   .badge-status { font-size: 11px; padding: 3px 10px; border-radius: 20px; background: #16a34a22; color: var(--green); border: 1px solid #16a34a55; }
 
+  /* ---- Layout ---- */
   .layout { display: flex; min-height: calc(100vh - 56px); }
+
+  /* Sidebar — desktop */
   .sidebar { width: 220px; background: var(--surface); border-right: 1px solid var(--border); padding: 20px 0; flex-shrink: 0; }
-  .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 20px; cursor: pointer; transition: background 0.15s; color: var(--muted); font-weight: 500; border-left: 3px solid transparent; }
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 20px; cursor: pointer; transition: background 0.15s; color: var(--muted); font-weight: 500; border-left: 3px solid transparent; user-select: none; }
   .nav-item:hover { background: var(--surface2); color: var(--text); }
   .nav-item.active { background: var(--surface2); color: var(--accent); border-left-color: var(--accent); }
   .nav-item .icon { font-size: 16px; width: 20px; text-align: center; }
   .nav-section { font-size: 10px; letter-spacing: 1px; color: var(--muted); padding: 16px 20px 6px; text-transform: uppercase; }
 
-  .content { flex: 1; padding: 28px; overflow-y: auto; }
+  .content { flex: 1; padding: 20px; overflow-y: auto; min-width: 0; }
   .page { display: none; }
   .page.active { display: block; }
   .page-title { font-size: 20px; font-weight: 700; margin-bottom: 20px; }
 
-  .stat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; margin-bottom: 24px; }
-  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; }
+  /* ---- Mobile bottom nav ---- */
+  .bottom-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: var(--surface); border-top: 1px solid var(--border); z-index: 20; height: 60px; padding: 0 4px; }
+  .bottom-nav-inner { display: flex; height: 100%; align-items: stretch; }
+  .bnav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; cursor: pointer; color: var(--muted); font-size: 10px; font-weight: 600; transition: color 0.15s; padding: 6px 2px; border: none; background: none; text-transform: uppercase; letter-spacing: 0.4px; }
+  .bnav-item .bicon { font-size: 18px; line-height: 1; }
+  .bnav-item.active { color: var(--accent); }
+
+  /* ---- Stats ---- */
+  .stat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin-bottom: 20px; }
+  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; }
   .stat-label { color: var(--muted); font-size: 12px; margin-bottom: 8px; }
   .stat-value { font-size: 26px; font-weight: 700; }
   .stat-value.green { color: var(--green); }
@@ -55,13 +68,15 @@
   .stat-value.yellow { color: var(--yellow); }
   .stat-value.accent { color: var(--accent); }
 
+  /* ---- Forms ---- */
   .form-group { margin-bottom: 16px; }
   .form-group label { display: block; margin-bottom: 6px; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
   input, select, textarea { width: 100%; background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: 9px 12px; border-radius: 7px; font-size: 14px; outline: none; transition: border-color 0.15s; }
   input:focus, select:focus, textarea:focus { border-color: var(--accent); }
   input::placeholder, textarea::placeholder { color: var(--muted); }
 
-  .btn { padding: 9px 18px; border-radius: 7px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; transition: opacity 0.15s, transform 0.1s; display: inline-flex; align-items: center; gap: 7px; }
+  /* ---- Buttons ---- */
+  .btn { padding: 9px 18px; border-radius: 7px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; transition: opacity 0.15s, transform 0.1s; display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; }
   .btn:active { transform: scale(0.97); }
   .btn-primary { background: var(--accent); color: #fff; }
   .btn-danger { background: var(--red); color: #fff; }
@@ -71,12 +86,21 @@
   .btn-sm { padding: 5px 12px; font-size: 12px; }
   .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-  .table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); }
+  /* ---- Tables ---- */
+  .table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); -webkit-overflow-scrolling: touch; }
   table { width: 100%; border-collapse: collapse; }
   th { background: var(--surface2); color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; padding: 12px 14px; text-align: left; white-space: nowrap; }
   td { padding: 12px 14px; border-top: 1px solid var(--border); vertical-align: middle; }
   tr:hover td { background: var(--surface2); }
 
+  /* ---- Symbol cards (mobile-friendly alternative) ---- */
+  .symbol-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+  .symbol-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; }
+  .symbol-card .sym-name { font-size: 16px; font-weight: 700; letter-spacing: 0.5px; }
+  .symbol-card .sym-date { font-size: 11px; color: var(--muted); }
+  .symbol-card .sym-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+
+  /* ---- Tags ---- */
   .tag { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600; }
   .tag-active { background: #16a34a22; color: var(--green); }
   .tag-revoked { background: #ef444422; color: var(--red); }
@@ -87,23 +111,26 @@
   .tag-partial { background: #eab30822; color: var(--yellow); }
   .tag-inactive { background: #64748b22; color: var(--muted); }
 
+  /* ---- Alerts ---- */
   .alert { padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; font-size: 13px; }
   .alert-error { background: #ef444422; border: 1px solid #ef444455; color: #fca5a5; }
   .alert-success { background: #16a34a22; border: 1px solid #16a34a55; color: #86efac; }
   .alert-info { background: #4f8ef722; border: 1px solid #4f8ef755; color: #93c5fd; }
   .alert-warn { background: #eab30822; border: 1px solid #eab30855; color: #fde047; }
 
-  .modal-bg { display: none; position: fixed; inset: 0; background: #00000088; z-index: 100; align-items: center; justify-content: center; }
+  /* ---- Modals ---- */
+  .modal-bg { display: none; position: fixed; inset: 0; background: #00000088; z-index: 100; align-items: center; justify-content: center; padding: 16px; }
   .modal-bg.open { display: flex; }
-  .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 28px; width: 460px; max-width: 95vw; max-height: 90vh; overflow-y: auto; }
+  .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 24px; width: 100%; max-width: 460px; max-height: 90vh; overflow-y: auto; }
   .modal h3 { font-size: 17px; margin-bottom: 20px; }
-  .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+  .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; flex-wrap: wrap; }
 
   .key-reveal { background: var(--surface2); border: 1px solid var(--green); border-radius: 8px; padding: 14px; word-break: break-all; font-family: monospace; font-size: 13px; color: var(--green); margin: 16px 0; }
   .key-warn { color: var(--yellow); font-size: 12px; margin-top: 8px; }
 
+  /* ---- Utilities ---- */
   .flex { display: flex; }
-  .flex-between { display: flex; justify-content: space-between; align-items: center; }
+  .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
   .gap-2 { gap: 8px; }
   .mb-4 { margin-bottom: 16px; }
   .text-muted { color: var(--muted); font-size: 13px; }
@@ -115,6 +142,28 @@
   .inline-check { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text); text-transform: none; letter-spacing: 0; }
   .inline-check input { width: auto; }
   .check-group { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 6px; }
+
+  /* ---- Responsive breakpoints ---- */
+  @media (max-width: 768px) {
+    .sidebar { display: none; }
+    .bottom-nav { display: block; }
+    .content { padding: 16px 12px 76px; /* room for bottom nav */ }
+    .page-title { font-size: 17px; }
+    .stat-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .stat-value { font-size: 22px; }
+    /* Hide less critical table columns on mobile */
+    .col-hide-mobile { display: none; }
+    td, th { padding: 10px 10px; }
+    .btn-sm { padding: 5px 10px; font-size: 11px; }
+    .topbar { padding: 0 12px; }
+    .badge-status { display: none; }
+  }
+
+  @media (max-width: 480px) {
+    .stat-grid { grid-template-columns: repeat(2, 1fr); }
+    .symbol-grid { grid-template-columns: repeat(2, 1fr); }
+    .modal { padding: 18px; }
+  }
 </style>
 </head>
 <body>
@@ -147,7 +196,9 @@
       <button class="btn btn-ghost btn-sm" onclick="doLogout()">Sign Out</button>
     </div>
   </div>
+
   <div class="layout">
+    <!-- Desktop Sidebar -->
     <div class="sidebar">
       <div class="nav-section">Overview</div>
       <div class="nav-item active" onclick="showPage('metrics')" id="nav-metrics"><span class="icon">📊</span> Dashboard</div>
@@ -186,7 +237,17 @@
         </div>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Time</th><th>Type</th><th>Symbol</th><th>Direction</th><th>Price</th><th>Lot</th><th>SL</th><th>TP</th><th>Ticket</th></tr></thead>
+            <thead><tr>
+              <th>Time</th>
+              <th>Type</th>
+              <th>Symbol</th>
+              <th>Direction</th>
+              <th>Price</th>
+              <th class="col-hide-mobile">Lot</th>
+              <th class="col-hide-mobile">SL</th>
+              <th class="col-hide-mobile">TP</th>
+              <th class="col-hide-mobile">Ticket</th>
+            </tr></thead>
             <tbody id="signalsTable"><tr><td colspan="9" class="empty-state">Loading...</td></tr></tbody>
           </table>
         </div>
@@ -200,7 +261,16 @@
         </div>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Owner</th><th>Scopes</th><th>Status</th><th>Max Machines</th><th>Note</th><th>Last Used</th><th>Created</th><th>Actions</th></tr></thead>
+            <thead><tr>
+              <th>Owner</th>
+              <th class="col-hide-mobile">Scopes</th>
+              <th>Status</th>
+              <th class="col-hide-mobile">Max Machines</th>
+              <th class="col-hide-mobile">Note</th>
+              <th class="col-hide-mobile">Last Used</th>
+              <th class="col-hide-mobile">Created</th>
+              <th>Actions</th>
+            </tr></thead>
             <tbody id="keysTable"><tr><td colspan="8" class="empty-state">Loading...</td></tr></tbody>
           </table>
         </div>
@@ -214,7 +284,14 @@
         </div>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Channel</th><th>Config</th><th>Key ID</th><th>Active</th><th>Created</th><th>Actions</th></tr></thead>
+            <thead><tr>
+              <th>Channel</th>
+              <th class="col-hide-mobile">Config</th>
+              <th class="col-hide-mobile">Key ID</th>
+              <th>Active</th>
+              <th class="col-hide-mobile">Created</th>
+              <th>Actions</th>
+            </tr></thead>
             <tbody id="subscribersTable"><tr><td colspan="6" class="empty-state">Loading...</td></tr></tbody>
           </table>
         </div>
@@ -229,12 +306,8 @@
         <div class="alert alert-info" style="margin-bottom:16px">
           The worker picks up symbol changes within 5 minutes. No restart needed.
         </div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Symbol</th><th>Status</th><th>Added</th><th>Actions</th></tr></thead>
-            <tbody id="symbolsTable"><tr><td colspan="4" class="empty-state">Loading...</td></tr></tbody>
-          </table>
-        </div>
+        <!-- Symbol cards grid (replaces table for better mobile UX) -->
+        <div id="symbolsContainer"></div>
       </div>
 
       <!-- MACHINES -->
@@ -244,7 +317,7 @@
           <button class="btn btn-ghost btn-sm" onclick="loadMachines()">↻ Refresh</button>
         </div>
         <div class="alert alert-info" style="margin-bottom:16px">
-          Machines are auto-registered on first use. Remove a machine to free its slot. Set machine limit per key from the API Keys page.
+          Machines are auto-registered on first use. Remove a machine to free its slot.
         </div>
         <div class="form-group" style="max-width:300px;margin-bottom:16px">
           <label>Filter by Key</label>
@@ -254,14 +327,33 @@
         </div>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>MT4 Account</th><th>Key Owner</th><th>Key ID</th><th>Registered</th><th>Last Seen</th><th>Actions</th></tr></thead>
+            <thead><tr>
+              <th>MT4 Account</th>
+              <th class="col-hide-mobile">Key Owner</th>
+              <th class="col-hide-mobile">Key ID</th>
+              <th class="col-hide-mobile">Registered</th>
+              <th class="col-hide-mobile">Last Seen</th>
+              <th>Actions</th>
+            </tr></thead>
             <tbody id="machinesTable"><tr><td colspan="6" class="empty-state">Loading...</td></tr></tbody>
           </table>
         </div>
       </div>
 
+    </div><!-- /content -->
+  </div><!-- /layout -->
+
+  <!-- Mobile Bottom Nav -->
+  <nav class="bottom-nav">
+    <div class="bottom-nav-inner">
+      <button class="bnav-item active" onclick="showPage('metrics')" id="bnav-metrics"><span class="bicon">📊</span>Dash</button>
+      <button class="bnav-item" onclick="showPage('signals')" id="bnav-signals"><span class="bicon">⚡</span>Signals</button>
+      <button class="bnav-item" onclick="showPage('keys')" id="bnav-keys"><span class="bicon">🔑</span>Keys</button>
+      <button class="bnav-item" onclick="showPage('subscribers')" id="bnav-subscribers"><span class="bicon">👥</span>Subs</button>
+      <button class="bnav-item" onclick="showPage('symbols')" id="bnav-symbols"><span class="bicon">💹</span>Symbols</button>
+      <button class="bnav-item" onclick="showPage('machines')" id="bnav-machines"><span class="bicon">🖥️</span>Machines</button>
     </div>
-  </div>
+  </nav>
 </div>
 
 <!-- ISSUE KEY MODAL -->
@@ -349,7 +441,7 @@
   </div>
 </div>
 
-<!-- CONFIRM MODAL (reusable) -->
+<!-- CONFIRM MODAL -->
 <div class="modal-bg" id="confirmModal">
   <div class="modal">
     <h3 id="confirmTitle">Confirm</h3>
@@ -365,7 +457,7 @@
 const API = '';
 let accessToken = localStorage.getItem('tc_access') || '';
 let refreshToken = localStorage.getItem('tc_refresh') || '';
-let allKeys = []; // cached for dropdowns
+let allKeys = [];
 
 // ---- Auth ----
 
@@ -435,8 +527,14 @@ function startApp() {
 function showPage(name) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.bnav-item').forEach(n => n.classList.remove('active'));
+
   document.getElementById('page-' + name).classList.add('active');
-  document.getElementById('nav-' + name).classList.add('active');
+  const sideNav = document.getElementById('nav-' + name);
+  if (sideNav) sideNav.classList.add('active');
+  const botNav = document.getElementById('bnav-' + name);
+  if (botNav) botNav.classList.add('active');
+
   if (name === 'keys') loadKeys();
   else if (name === 'subscribers') loadSubscribers();
   else if (name === 'signals') loadSignals();
@@ -486,10 +584,10 @@ async function loadSignals() {
       <td><strong>${esc(s.symbol)}</strong></td>
       <td><span class="tag tag-${s.direction?.toLowerCase()}">${s.direction}</span></td>
       <td class="text-mono">${fmt(s.price,5)}</td>
-      <td class="text-mono">${fmt(s.lot,2)}</td>
-      <td class="text-mono">${s.sl ? fmt(s.sl,5) : '—'}</td>
-      <td class="text-mono">${s.tp ? fmt(s.tp,5) : '—'}</td>
-      <td class="text-mono">${s.ticket_id}</td>
+      <td class="text-mono col-hide-mobile">${fmt(s.lot,2)}</td>
+      <td class="text-mono col-hide-mobile">${s.sl ? fmt(s.sl,5) : '—'}</td>
+      <td class="text-mono col-hide-mobile">${s.tp ? fmt(s.tp,5) : '—'}</td>
+      <td class="text-mono col-hide-mobile">${s.ticket_id}</td>
     </tr>`).join('');
   } catch(e) { tbody.innerHTML = empty(9, 'Failed to load'); }
 }
@@ -505,17 +603,17 @@ async function loadKeys() {
     if (!allKeys.length) { tbody.innerHTML = empty(8, 'No keys yet'); return; }
     tbody.innerHTML = allKeys.map(k => `<tr>
       <td><strong>${esc(k.owner)}</strong></td>
-      <td>${(k.scopes||[]).map(s=>`<span class="tag tag-active">${esc(s)}</span>`).join(' ')}</td>
+      <td class="col-hide-mobile">${(k.scopes||[]).map(s=>`<span class="tag tag-active">${esc(s)}</span>`).join(' ')}</td>
       <td><span class="tag tag-${k.status}">${k.status}</span></td>
-      <td class="text-mono">${k.max_machines != null ? k.max_machines : '∞'}</td>
-      <td class="text-muted">${esc(k.note||'—')}</td>
-      <td class="text-mono">${k.last_used_at ? fmtTime(k.last_used_at) : 'Never'}</td>
-      <td class="text-mono">${fmtTime(k.created_at)}</td>
+      <td class="text-mono col-hide-mobile">${k.max_machines != null ? k.max_machines : '∞'}</td>
+      <td class="text-muted col-hide-mobile">${esc(k.note||'—')}</td>
+      <td class="text-mono col-hide-mobile">${k.last_used_at ? fmtTime(k.last_used_at) : 'Never'}</td>
+      <td class="text-mono col-hide-mobile">${fmtTime(k.created_at)}</td>
       <td>
-        <div class="flex gap-2">
-          ${k.status==='active' ? `<button class="btn btn-ghost btn-sm" onclick="confirmAction('Suspend Key','Suspend key for &quot;${esc(k.owner)}&quot;? It stops working immediately.','btn-warning',()=>setKeyStatus('${k.id}','suspended'))">Suspend</button>` : ''}
+        <div class="flex gap-2" style="flex-wrap:wrap">
+          ${k.status==='active' ? `<button class="btn btn-ghost btn-sm" onclick="confirmAction('Suspend Key','Suspend key for &quot;${esc(k.owner)}&quot;?','btn-warning',()=>setKeyStatus('${k.id}','suspended'))">Suspend</button>` : ''}
           ${k.status==='suspended' ? `<button class="btn btn-success btn-sm" onclick="confirmAction('Activate Key','Re-activate key for &quot;${esc(k.owner)}&quot;?','btn-success',()=>setKeyStatus('${k.id}','active'))">Activate</button>` : ''}
-          ${k.status!=='revoked' ? `<button class="btn btn-danger btn-sm" onclick="confirmAction('Revoke Key','Permanently revoke key for &quot;${esc(k.owner)}&quot;? This cannot be undone.','btn-danger',()=>setKeyStatus('${k.id}','revoked'))">Revoke</button>` : ''}
+          ${k.status!=='revoked' ? `<button class="btn btn-danger btn-sm" onclick="confirmAction('Revoke Key','Permanently revoke key for &quot;${esc(k.owner)}&quot;?','btn-danger',()=>setKeyStatus('${k.id}','revoked'))">Revoke</button>` : ''}
           ${k.status==='active' ? `<button class="btn btn-ghost btn-sm" onclick="rotateKey('${k.id}')">Rotate</button>` : ''}
           <button class="btn btn-ghost btn-sm" onclick="openSetMaxMachines('${k.id}','${esc(k.owner)}',${k.max_machines??'null'})">Machines</button>
         </div>
@@ -601,10 +699,10 @@ async function loadSubscribers() {
     if (!subs.length) { tbody.innerHTML = empty(6, 'No subscribers yet'); return; }
     tbody.innerHTML = subs.map(s => `<tr>
       <td><span class="tag tag-active">${esc(s.channel)}</span></td>
-      <td class="text-mono" style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(JSON.stringify(s.config||{}))}">${esc(JSON.stringify(s.config||{}))}</td>
-      <td class="text-mono" title="${s.key_id}">${s.key_id?.slice(0,8)}…</td>
-      <td><span class="tag ${s.active?'tag-active':'tag-inactive'}">${s.active?'Active':'Inactive'}</span></td>
-      <td class="text-mono">${fmtTime(s.created_at)}</td>
+      <td class="text-mono col-hide-mobile" style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(JSON.stringify(s.config||{}))}">${esc(JSON.stringify(s.config||{}))}</td>
+      <td class="text-mono col-hide-mobile" title="${s.key_id}">${s.key_id?.slice(0,8)}…</td>
+      <td><span class="tag ${s.active?'tag-active':'tag-inactive'}">${s.active?'Active':'Off'}</span></td>
+      <td class="text-mono col-hide-mobile">${fmtTime(s.created_at)}</td>
       <td><button class="btn btn-ghost btn-sm" onclick="toggleSubscriber('${s.id}',${!s.active})">${s.active?'Disable':'Enable'}</button></td>
     </tr>`).join('');
   } catch(e) { tbody.innerHTML = empty(6, 'Failed to load'); }
@@ -633,7 +731,7 @@ function updateConfigHelp() {
     telegram: '{"chat_id": "-1001234567890"}',
     whatsapp: '{"phone": "+237612345678"}',
     webhook:  '{"url": "https://your-server.com/hook", "secret": "optional"}',
-    mt4:      '{"symbols": ["EURUSD", "XAUUSD"]}  // empty = all symbols'
+    mt4:      '{"symbols": ["EURUSD", "XAUUSD"]}'
   };
   const ch = document.getElementById('subChannel').value;
   document.getElementById('configHelp').textContent = 'Example: ' + helps[ch];
@@ -669,26 +767,36 @@ async function toggleSubscriber(id, active) {
 }
 
 // ---- Symbols ----
+// API returns PascalCase: { ID, Symbol, Active, CreatedAt }
 
 async function loadSymbols() {
-  const tbody = document.getElementById('symbolsTable');
-  tbody.innerHTML = spinner(4);
+  const container = document.getElementById('symbolsContainer');
+  container.innerHTML = `<div style="text-align:center;padding:32px"><div class="spinner" style="margin:0 auto"></div></div>`;
   try {
     const res = await apiFetch('/admin/symbols');
     const syms = await res.json() || [];
-    if (!syms.length) { tbody.innerHTML = empty(4, 'No symbols configured'); return; }
-    tbody.innerHTML = syms.map(s => `<tr>
-      <td><strong>${esc(s.symbol)}</strong></td>
-      <td><span class="tag ${s.active?'tag-active':'tag-inactive'}">${s.active?'Active':'Inactive'}</span></td>
-      <td class="text-mono">${fmtTime(s.created_at)}</td>
-      <td>
-        <div class="flex gap-2">
-          <button class="btn btn-ghost btn-sm" onclick="toggleSymbol('${esc(s.symbol)}',${!s.active})">${s.active?'Disable':'Enable'}</button>
-          <button class="btn btn-danger btn-sm" onclick="confirmAction('Delete Symbol','Permanently delete ${esc(s.symbol)}? The worker will stop watching it within 5 minutes.','btn-danger',()=>deleteSymbol('${esc(s.symbol)}'))">Delete</button>
+    if (!syms.length) {
+      container.innerHTML = `<div class="empty-state">No symbols configured</div>`;
+      return;
+    }
+    // Normalise keys — handle both PascalCase (API) and lowercase (legacy)
+    const normalised = syms.map(s => ({
+      id:        s.ID        ?? s.id,
+      symbol:    s.Symbol    ?? s.symbol,
+      active:    s.Active    ?? s.active,
+      createdAt: s.CreatedAt ?? s.created_at,
+    }));
+    container.innerHTML = `<div class="symbol-grid">${normalised.map(s => `
+      <div class="symbol-card">
+        <div class="sym-name">💹 ${esc(s.symbol)}</div>
+        <span class="tag ${s.active ? 'tag-active' : 'tag-inactive'}">${s.active ? 'Active' : 'Inactive'}</span>
+        <div class="sym-date">${fmtTime(s.createdAt)}</div>
+        <div class="sym-actions">
+          <button class="btn btn-ghost btn-sm" onclick="toggleSymbol('${esc(s.symbol)}',${!s.active})">${s.active ? 'Disable' : 'Enable'}</button>
+          <button class="btn btn-danger btn-sm" onclick="confirmAction('Delete Symbol','Delete ${esc(s.symbol)}?','btn-danger',()=>deleteSymbol('${esc(s.symbol)}'))">Del</button>
         </div>
-      </td>
-    </tr>`).join('');
-  } catch(e) { tbody.innerHTML = empty(4, 'Failed to load'); }
+      </div>`).join('')}</div>`;
+  } catch(e) { container.innerHTML = `<div class="empty-state">Failed to load symbols</div>`; }
 }
 
 function openAddSymbolModal() {
@@ -729,7 +837,6 @@ async function deleteSymbol(symbol) {
 // ---- Machines ----
 
 async function loadMachinesPage() {
-  // Populate key filter dropdown
   const sel = document.getElementById('machineKeyFilter');
   if (sel.options.length <= 1) {
     (allKeys.length ? Promise.resolve(allKeys) : apiFetch('/admin/keys').then(r=>r.json()))
@@ -749,9 +856,7 @@ async function loadMachines() {
   const tbody = document.getElementById('machinesTable');
   tbody.innerHTML = spinner(6);
   const keyID = document.getElementById('machineKeyFilter').value;
-
   try {
-    // If a key is selected, use the per-key endpoint; otherwise fetch all keys and aggregate
     if (keyID) {
       const res = await apiFetch(`/admin/keys/${keyID}/machines`);
       const data = await res.json();
@@ -760,7 +865,6 @@ async function loadMachines() {
       if (!machines.length) { tbody.innerHTML = empty(6, 'No machines registered for this key'); return; }
       tbody.innerHTML = machines.map(m => machineRow(m, keyOwner, keyID)).join('');
     } else {
-      // Aggregate across all keys
       const keysRes = await apiFetch('/admin/keys');
       const keys = await keysRes.json() || [];
       const rows = [];
@@ -778,12 +882,12 @@ async function loadMachines() {
 function machineRow(m, owner, keyID) {
   return `<tr>
     <td class="text-mono"><strong>${esc(m.account_number)}</strong></td>
-    <td>${esc(owner)}</td>
-    <td class="text-mono" title="${keyID}">${keyID.slice(0,8)}…</td>
-    <td class="text-mono">${fmtTime(m.registered_at)}</td>
-    <td class="text-mono">${fmtTime(m.last_seen_at)}</td>
+    <td class="col-hide-mobile">${esc(owner)}</td>
+    <td class="text-mono col-hide-mobile" title="${keyID}">${keyID.slice(0,8)}…</td>
+    <td class="text-mono col-hide-mobile">${fmtTime(m.registered_at)}</td>
+    <td class="text-mono col-hide-mobile">${fmtTime(m.last_seen_at)}</td>
     <td>
-      <button class="btn btn-danger btn-sm" onclick="confirmAction('Remove Machine','Remove account ${esc(m.account_number)} from this key? The slot will be freed immediately.','btn-danger',()=>removeMachine('${keyID}','${esc(m.account_number)}'))">Remove</button>
+      <button class="btn btn-danger btn-sm" onclick="confirmAction('Remove Machine','Remove account ${esc(m.account_number)}?','btn-danger',()=>removeMachine('${keyID}','${esc(m.account_number)}'))">Remove</button>
     </td>
   </tr>`;
 }
@@ -825,7 +929,6 @@ function empty(cols, msg) {
   return `<tr><td colspan="${cols}" class="empty-state">${msg}</td></tr>`;
 }
 
-// Close modals on backdrop click
 document.querySelectorAll('.modal-bg').forEach(bg => {
   bg.addEventListener('click', e => { if (e.target === bg) bg.classList.remove('open'); });
 });
