@@ -695,14 +695,22 @@ async function loadSubscribers() {
   tbody.innerHTML = spinner(6);
   try {
     const res = await apiFetch('/admin/subscribers');
-    const subs = await res.json() || [];
-    if (!subs.length) { tbody.innerHTML = empty(6, 'No subscribers yet'); return; }
+    const raw = await res.json() || [];
+    if (!raw.length) { tbody.innerHTML = empty(6, 'No subscribers yet'); return; }
+    const subs = raw.map(s => ({
+      id:        s.ID        ?? s.id,
+      keyId:     s.KeyID     ?? s.key_id,
+      channel:   s.Channel   ?? s.channel,
+      config:    s.Config    ?? s.config,
+      active:    s.Active    ?? s.active,
+      createdAt: s.CreatedAt ?? s.created_at,
+    }));
     tbody.innerHTML = subs.map(s => `<tr>
       <td><span class="tag tag-active">${esc(s.channel)}</span></td>
       <td class="text-mono col-hide-mobile" style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(JSON.stringify(s.config||{}))}">${esc(JSON.stringify(s.config||{}))}</td>
-      <td class="text-mono col-hide-mobile" title="${s.key_id}">${s.key_id?.slice(0,8)}…</td>
+      <td class="text-mono col-hide-mobile" title="${s.keyId}">${s.keyId?.slice(0,8)}…</td>
       <td><span class="tag ${s.active?'tag-active':'tag-inactive'}">${s.active?'Active':'Off'}</span></td>
-      <td class="text-mono col-hide-mobile">${fmtTime(s.created_at)}</td>
+      <td class="text-mono col-hide-mobile">${fmtTime(s.createdAt)}</td>
       <td><button class="btn btn-ghost btn-sm" onclick="toggleSubscriber('${s.id}',${!s.active})">${s.active?'Disable':'Enable'}</button></td>
     </tr>`).join('');
   } catch(e) { tbody.innerHTML = empty(6, 'Failed to load'); }
