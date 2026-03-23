@@ -6,13 +6,14 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: mt4signal
-      POSTGRES_PASSWORD: changeme
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: mt4signal
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./migrations:/docker-entrypoint-initdb.d:ro
-    ports:
-      - "5432:5432"
+    # NO ports: — only reachable inside the Docker network
+    networks:
+      - backend
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U mt4signal"]
       interval: 5s
@@ -22,13 +23,14 @@ services:
   redis_critical:
     image: redis:7-alpine
     restart: unless-stopped
-    command: redis-server --maxmemory 256mb --maxmemory-policy noeviction --requirepass changeme
+    command: redis-server --maxmemory 256mb --maxmemory-policy noeviction --requirepass ${REDIS_PASSWORD}
     volumes:
       - redis_critical_data:/data
-    ports:
-      - "6379:6379"
+    # NO ports:
+    networks:
+      - backend
     healthcheck:
-      test: ["CMD", "redis-cli", "-a", "changeme", "ping"]
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
       interval: 5s
       timeout: 3s
       retries: 5
@@ -36,13 +38,14 @@ services:
   redis_cache:
     image: redis:7-alpine
     restart: unless-stopped
-    command: redis-server --maxmemory 128mb --maxmemory-policy allkeys-lru --requirepass changeme
+    command: redis-server --maxmemory 128mb --maxmemory-policy allkeys-lru --requirepass ${REDIS_PASSWORD}
     volumes:
       - redis_cache_data:/data
-    ports:
-      - "6380:6380"
+    # NO ports:
+    networks:
+      - backend
     healthcheck:
-      test: ["CMD", "redis-cli", "-a", "changeme", "ping"]
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
       interval: 5s
       timeout: 3s
       retries: 5
@@ -53,10 +56,12 @@ services:
       dockerfile: docker/Dockerfile.server
     restart: unless-stopped
     ports:
-      - "8080:8080"
+      - "127.0.0.1:8080:8080"   # bind to localhost only — Nginx sits in front
     env_file: .env
     volumes:
       - ./web:/app/web:ro
+    networks:
+      - backend
     depends_on:
       postgres:
         condition: service_healthy
@@ -71,6 +76,8 @@ services:
       dockerfile: docker/Dockerfile.worker
     restart: unless-stopped
     env_file: .env
+    networks:
+      - backend
     depends_on:
       postgres:
         condition: service_healthy
@@ -83,3 +90,7 @@ volumes:
   postgres_data:
   redis_critical_data:
   redis_cache_data:
+
+networks:
+  backend:
+    driver: bridge
