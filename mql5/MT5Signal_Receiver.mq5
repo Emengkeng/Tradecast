@@ -13,8 +13,8 @@ input long   AccountID      = 0;       // Set to your MT5 account number; 0 = au
 input int    PollIntervalMs = 300;
 input double LotMultiplier  = 1.0;     // Scale lot size (1.0 = same as source)
 input int    Slippage       = 3;       // In points
-input bool   CopyModify     = true;
-input bool   CopyClose      = true;
+input bool   EnableModify   = true;
+input bool   EnableClose    = true;
 input long   Magic          = 88001;
 
 string lastProcessedKey = ""; // ticket_id + ":" + signal_type
@@ -75,9 +75,9 @@ void PollAndAct() {
          " price=", price, " lot=", lot, " ticket=", ticketID);
 
    if      (signalType == "OPEN"                  ) OpenTrade(direction, sl, tp, lot, ticketID);
-   else if (signalType == "MODIFY"  && CopyModify ) ModifyTrade(ticketID, sl, tp);
-   else if (signalType == "CLOSE"   && CopyClose  ) CloseTrade(ticketID);
-   else if (signalType == "PARTIAL" && CopyClose  ) PartialClose(ticketID, lot);
+   else if (signalType == "MODIFY"  && EnableModify ) ModifyTrade(ticketID, sl, tp);
+   else if (signalType == "CLOSE"   && EnableClose  ) CloseTrade(ticketID);
+   else if (signalType == "PARTIAL" && EnableClose  ) PartialClose(ticketID, lot);
 }
 
 //+------------------------------------------------------------------+
