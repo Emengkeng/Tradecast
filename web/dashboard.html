@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MT4Signal Admin</title>
+<title>Tradecast Admin</title>
 <style>
   :root {
     --bg: #0f1117;
@@ -11,7 +11,6 @@
     --surface2: #22263a;
     --border: #2e3248;
     --accent: #4f8ef7;
-    --accent2: #7c6aff;
     --green: #22c55e;
     --red: #ef4444;
     --yellow: #eab308;
@@ -22,24 +21,21 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, sans-serif; font-size: 14px; min-height: 100vh; }
 
-  /* Login */
   #loginScreen { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
   .loginCard { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 40px; width: 360px; }
   .loginCard h1 { font-size: 22px; margin-bottom: 6px; }
   .loginCard p { color: var(--muted); margin-bottom: 28px; font-size: 13px; }
   .loginCard .logo { font-size: 32px; margin-bottom: 16px; }
 
-  /* App shell */
   #app { display: none; }
   .topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; height: 56px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 10; }
   .topbar .brand { font-weight: 700; font-size: 16px; display: flex; align-items: center; gap: 10px; }
-  .topbar .brand span { font-size: 20px; }
   .topbar-right { display: flex; align-items: center; gap: 12px; }
   .badge-status { font-size: 11px; padding: 3px 10px; border-radius: 20px; background: #16a34a22; color: var(--green); border: 1px solid #16a34a55; }
 
   .layout { display: flex; min-height: calc(100vh - 56px); }
   .sidebar { width: 220px; background: var(--surface); border-right: 1px solid var(--border); padding: 20px 0; flex-shrink: 0; }
-  .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 20px; cursor: pointer; border-radius: 0; transition: background 0.15s; color: var(--muted); font-weight: 500; border-left: 3px solid transparent; }
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 20px; cursor: pointer; transition: background 0.15s; color: var(--muted); font-weight: 500; border-left: 3px solid transparent; }
   .nav-item:hover { background: var(--surface2); color: var(--text); }
   .nav-item.active { background: var(--surface2); color: var(--accent); border-left-color: var(--accent); }
   .nav-item .icon { font-size: 16px; width: 20px; text-align: center; }
@@ -50,8 +46,6 @@
   .page.active { display: block; }
   .page-title { font-size: 20px; font-weight: 700; margin-bottom: 20px; }
 
-  /* Cards */
-  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
   .stat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; margin-bottom: 24px; }
   .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; }
   .stat-label { color: var(--muted); font-size: 12px; margin-bottom: 8px; }
@@ -61,71 +55,66 @@
   .stat-value.yellow { color: var(--yellow); }
   .stat-value.accent { color: var(--accent); }
 
-  /* Forms */
   .form-group { margin-bottom: 16px; }
   .form-group label { display: block; margin-bottom: 6px; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
   input, select, textarea { width: 100%; background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: 9px 12px; border-radius: 7px; font-size: 14px; outline: none; transition: border-color 0.15s; }
-  input:focus, select:focus { border-color: var(--accent); }
-  input::placeholder { color: var(--muted); }
+  input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+  input::placeholder, textarea::placeholder { color: var(--muted); }
 
-  /* Buttons */
   .btn { padding: 9px 18px; border-radius: 7px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; transition: opacity 0.15s, transform 0.1s; display: inline-flex; align-items: center; gap: 7px; }
   .btn:active { transform: scale(0.97); }
   .btn-primary { background: var(--accent); color: #fff; }
   .btn-danger { background: var(--red); color: #fff; }
   .btn-success { background: var(--green); color: #fff; }
+  .btn-warning { background: var(--yellow); color: #000; }
   .btn-ghost { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
   .btn-sm { padding: 5px 12px; font-size: 12px; }
   .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-  /* Tables */
   .table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); }
   table { width: 100%; border-collapse: collapse; }
-  th { background: var(--surface2); color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; padding: 12px 14px; text-align: left; }
+  th { background: var(--surface2); color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; padding: 12px 14px; text-align: left; white-space: nowrap; }
   td { padding: 12px 14px; border-top: 1px solid var(--border); vertical-align: middle; }
   tr:hover td { background: var(--surface2); }
+
   .tag { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600; }
   .tag-active { background: #16a34a22; color: var(--green); }
   .tag-revoked { background: #ef444422; color: var(--red); }
   .tag-suspended { background: #eab30822; color: var(--yellow); }
-  .tag-buy { background: #16a34a22; color: var(--green); }
-  .tag-sell { background: #ef444422; color: var(--red); }
-  .tag-open { background: #16a34a22; color: var(--green); }
-  .tag-close { background: #ef444422; color: var(--red); }
+  .tag-buy, .tag-open { background: #16a34a22; color: var(--green); }
+  .tag-sell, .tag-close { background: #ef444422; color: var(--red); }
   .tag-modify { background: #4f8ef722; color: var(--accent); }
   .tag-partial { background: #eab30822; color: var(--yellow); }
+  .tag-inactive { background: #64748b22; color: var(--muted); }
 
-  /* Alerts */
   .alert { padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; font-size: 13px; }
   .alert-error { background: #ef444422; border: 1px solid #ef444455; color: #fca5a5; }
   .alert-success { background: #16a34a22; border: 1px solid #16a34a55; color: #86efac; }
   .alert-info { background: #4f8ef722; border: 1px solid #4f8ef755; color: #93c5fd; }
+  .alert-warn { background: #eab30822; border: 1px solid #eab30855; color: #fde047; }
 
-  /* Modal */
   .modal-bg { display: none; position: fixed; inset: 0; background: #00000088; z-index: 100; align-items: center; justify-content: center; }
   .modal-bg.open { display: flex; }
-  .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 28px; width: 440px; max-width: 95vw; }
+  .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 28px; width: 460px; max-width: 95vw; max-height: 90vh; overflow-y: auto; }
   .modal h3 { font-size: 17px; margin-bottom: 20px; }
   .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
 
-  /* Key reveal */
   .key-reveal { background: var(--surface2); border: 1px solid var(--green); border-radius: 8px; padding: 14px; word-break: break-all; font-family: monospace; font-size: 13px; color: var(--green); margin: 16px 0; }
   .key-warn { color: var(--yellow); font-size: 12px; margin-top: 8px; }
 
-  /* Misc */
   .flex { display: flex; }
   .flex-between { display: flex; justify-content: space-between; align-items: center; }
   .gap-2 { gap: 8px; }
   .mb-4 { margin-bottom: 16px; }
-  .mb-6 { margin-bottom: 24px; }
-  .text-muted { color: var(--muted); }
+  .text-muted { color: var(--muted); font-size: 13px; }
   .text-mono { font-family: monospace; font-size: 12px; }
   .spinner { width: 18px; height: 18px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; display: inline-block; }
   @keyframes spin { to { transform: rotate(360deg); } }
   .empty-state { text-align: center; padding: 40px; color: var(--muted); }
-  .empty-state .icon { font-size: 40px; margin-bottom: 12px; }
-  .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-  .divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+  .hint { font-size: 12px; color: var(--muted); margin-top: 5px; }
+  .inline-check { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text); text-transform: none; letter-spacing: 0; }
+  .inline-check input { width: auto; }
+  .check-group { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 6px; }
 </style>
 </head>
 <body>
@@ -134,7 +123,7 @@
 <div id="loginScreen">
   <div class="loginCard">
     <div class="logo">📡</div>
-    <h1>MT4Signal</h1>
+    <h1>Tradecast</h1>
     <p>Admin Dashboard — sign in to continue</p>
     <div id="loginError" class="alert alert-error" style="display:none"></div>
     <div class="form-group">
@@ -145,16 +134,14 @@
       <label>Password</label>
       <input id="loginPassword" type="password" placeholder="••••••••" autocomplete="current-password">
     </div>
-    <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:8px" onclick="doLogin()">
-      Sign In
-    </button>
+    <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:8px" onclick="doLogin()">Sign In</button>
   </div>
 </div>
 
 <!-- APP -->
 <div id="app">
   <div class="topbar">
-    <div class="brand"><span>📡</span> MT4Signal Admin</div>
+    <div class="brand"><span>📡</span> Tradecast</div>
     <div class="topbar-right">
       <span class="badge-status" id="statusBadge">● Connected</span>
       <button class="btn btn-ghost btn-sm" onclick="doLogout()">Sign Out</button>
@@ -163,27 +150,22 @@
   <div class="layout">
     <div class="sidebar">
       <div class="nav-section">Overview</div>
-      <div class="nav-item active" onclick="showPage('metrics')" id="nav-metrics">
-        <span class="icon">📊</span> Dashboard
-      </div>
-      <div class="nav-item" onclick="showPage('signals')" id="nav-signals">
-        <span class="icon">⚡</span> Signals
-      </div>
+      <div class="nav-item active" onclick="showPage('metrics')" id="nav-metrics"><span class="icon">📊</span> Dashboard</div>
+      <div class="nav-item" onclick="showPage('signals')" id="nav-signals"><span class="icon">⚡</span> Signals</div>
       <div class="nav-section">Access</div>
-      <div class="nav-item" onclick="showPage('keys')" id="nav-keys">
-        <span class="icon">🔑</span> API Keys
-      </div>
-      <div class="nav-item" onclick="showPage('subscribers')" id="nav-subscribers">
-        <span class="icon">👥</span> Subscribers
-      </div>
+      <div class="nav-item" onclick="showPage('keys')" id="nav-keys"><span class="icon">🔑</span> API Keys</div>
+      <div class="nav-item" onclick="showPage('subscribers')" id="nav-subscribers"><span class="icon">👥</span> Subscribers</div>
+      <div class="nav-section">Config</div>
+      <div class="nav-item" onclick="showPage('symbols')" id="nav-symbols"><span class="icon">💹</span> Symbols</div>
+      <div class="nav-item" onclick="showPage('machines')" id="nav-machines"><span class="icon">🖥️</span> Machines</div>
     </div>
 
     <div class="content">
 
-      <!-- METRICS PAGE -->
+      <!-- DASHBOARD -->
       <div class="page active" id="page-metrics">
         <div class="page-title">Dashboard</div>
-        <div class="stat-grid" id="metricsGrid">
+        <div class="stat-grid">
           <div class="stat-card"><div class="stat-label">Total Signals</div><div class="stat-value accent" id="m-total">—</div></div>
           <div class="stat-card"><div class="stat-label">Delivered</div><div class="stat-value green" id="m-delivered">—</div></div>
           <div class="stat-card"><div class="stat-label">Failed</div><div class="stat-value red" id="m-failed">—</div></div>
@@ -191,12 +173,12 @@
           <div class="stat-card"><div class="stat-label">Active Keys</div><div class="stat-value accent" id="m-active-keys">—</div></div>
           <div class="stat-card"><div class="stat-label">Subscribers</div><div class="stat-value accent" id="m-subs">—</div></div>
         </div>
-        <div class="alert alert-info" id="deadLetterAlert" style="display:none">
-          ⚠️ Dead letter queue has <strong id="deadCount"></strong> failed jobs. Check delivery logs.
+        <div class="alert alert-warn" id="deadLetterAlert" style="display:none">
+          ⚠️ Dead letter queue has <strong id="deadCount"></strong> failed job(s). Check delivery logs.
         </div>
       </div>
 
-      <!-- SIGNALS PAGE -->
+      <!-- SIGNALS -->
       <div class="page" id="page-signals">
         <div class="flex-between mb-4">
           <div class="page-title" style="margin-bottom:0">Recent Signals</div>
@@ -204,15 +186,13 @@
         </div>
         <div class="table-wrap">
           <table>
-            <thead>
-              <tr><th>Time</th><th>Type</th><th>Symbol</th><th>Direction</th><th>Price</th><th>Lot</th><th>SL</th><th>TP</th><th>Ticket</th></tr>
-            </thead>
+            <thead><tr><th>Time</th><th>Type</th><th>Symbol</th><th>Direction</th><th>Price</th><th>Lot</th><th>SL</th><th>TP</th><th>Ticket</th></tr></thead>
             <tbody id="signalsTable"><tr><td colspan="9" class="empty-state">Loading...</td></tr></tbody>
           </table>
         </div>
       </div>
 
-      <!-- KEYS PAGE -->
+      <!-- API KEYS -->
       <div class="page" id="page-keys">
         <div class="flex-between mb-4">
           <div class="page-title" style="margin-bottom:0">API Keys</div>
@@ -220,15 +200,13 @@
         </div>
         <div class="table-wrap">
           <table>
-            <thead>
-              <tr><th>Owner</th><th>Scopes</th><th>Status</th><th>Note</th><th>Last Used</th><th>Created</th><th>Actions</th></tr>
-            </thead>
-            <tbody id="keysTable"><tr><td colspan="7" class="empty-state">Loading...</td></tr></tbody>
+            <thead><tr><th>Owner</th><th>Scopes</th><th>Status</th><th>Max Machines</th><th>Note</th><th>Last Used</th><th>Created</th><th>Actions</th></tr></thead>
+            <tbody id="keysTable"><tr><td colspan="8" class="empty-state">Loading...</td></tr></tbody>
           </table>
         </div>
       </div>
 
-      <!-- SUBSCRIBERS PAGE -->
+      <!-- SUBSCRIBERS -->
       <div class="page" id="page-subscribers">
         <div class="flex-between mb-4">
           <div class="page-title" style="margin-bottom:0">Subscribers</div>
@@ -236,10 +214,48 @@
         </div>
         <div class="table-wrap">
           <table>
-            <thead>
-              <tr><th>Channel</th><th>Config</th><th>Key ID</th><th>Active</th><th>Created</th><th>Actions</th></tr>
-            </thead>
+            <thead><tr><th>Channel</th><th>Config</th><th>Key ID</th><th>Active</th><th>Created</th><th>Actions</th></tr></thead>
             <tbody id="subscribersTable"><tr><td colspan="6" class="empty-state">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- SYMBOLS -->
+      <div class="page" id="page-symbols">
+        <div class="flex-between mb-4">
+          <div class="page-title" style="margin-bottom:0">Watched Symbols</div>
+          <button class="btn btn-primary btn-sm" onclick="openAddSymbolModal()">+ Add Symbol</button>
+        </div>
+        <div class="alert alert-info" style="margin-bottom:16px">
+          The worker picks up symbol changes within 5 minutes. No restart needed.
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Symbol</th><th>Status</th><th>Added</th><th>Actions</th></tr></thead>
+            <tbody id="symbolsTable"><tr><td colspan="4" class="empty-state">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- MACHINES -->
+      <div class="page" id="page-machines">
+        <div class="flex-between mb-4">
+          <div class="page-title" style="margin-bottom:0">Registered Machines</div>
+          <button class="btn btn-ghost btn-sm" onclick="loadMachines()">↻ Refresh</button>
+        </div>
+        <div class="alert alert-info" style="margin-bottom:16px">
+          Machines are auto-registered on first use. Remove a machine to free its slot. Set machine limit per key from the API Keys page.
+        </div>
+        <div class="form-group" style="max-width:300px;margin-bottom:16px">
+          <label>Filter by Key</label>
+          <select id="machineKeyFilter" onchange="loadMachines()">
+            <option value="">All Keys</option>
+          </select>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>MT4 Account</th><th>Key Owner</th><th>Key ID</th><th>Registered</th><th>Last Seen</th><th>Actions</th></tr></thead>
+            <tbody id="machinesTable"><tr><td colspan="6" class="empty-state">Loading...</td></tr></tbody>
           </table>
         </div>
       </div>
@@ -255,30 +271,29 @@
     <div id="issueKeyError" class="alert alert-error" style="display:none"></div>
     <div class="form-group">
       <label>Owner / Label</label>
-      <input id="keyOwner" type="text" placeholder="e.g. John MT4 Account 2">
+      <input id="keyOwner" type="text" placeholder="e.g. John — MT4 Account 2">
     </div>
     <div class="form-group">
       <label>Note (optional)</label>
-      <input id="keyNote" type="text" placeholder="e.g. Broker XYZ Demo Account">
+      <input id="keyNote" type="text" placeholder="e.g. Broker XYZ Demo">
+    </div>
+    <div class="form-group">
+      <label>Max Machines</label>
+      <input id="keyMaxMachines" type="number" min="0" placeholder="Leave blank for unlimited">
+      <div class="hint">How many MT4 accounts can use this key. Blank = unlimited.</div>
     </div>
     <div class="form-group">
       <label>Scopes</label>
-      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:6px">
-        <label style="display:flex;align-items:center;gap:5px;text-transform:none;letter-spacing:0;font-size:13px;color:var(--text)">
-          <input type="checkbox" id="scope_copy" checked style="width:auto"> copy:receive
-        </label>
-        <label style="display:flex;align-items:center;gap:5px;text-transform:none;letter-spacing:0;font-size:13px;color:var(--text)">
-          <input type="checkbox" id="scope_read" style="width:auto"> signals:read
-        </label>
-        <label style="display:flex;align-items:center;gap:5px;text-transform:none;letter-spacing:0;font-size:13px;color:var(--text)">
-          <input type="checkbox" id="scope_webhook" style="width:auto"> webhook:register
-        </label>
+      <div class="check-group">
+        <label class="inline-check"><input type="checkbox" id="scope_copy" checked> copy:receive</label>
+        <label class="inline-check"><input type="checkbox" id="scope_read"> signals:read</label>
+        <label class="inline-check"><input type="checkbox" id="scope_webhook"> webhook:register</label>
       </div>
     </div>
     <div id="newKeyReveal" style="display:none">
       <div class="alert alert-success">Key issued successfully!</div>
       <div class="key-reveal" id="newKeyValue"></div>
-      <div class="key-warn">⚠️ Copy this key now. It will never be shown again.</div>
+      <div class="key-warn">⚠️ Copy this key now — it will never be shown again.</div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal('issueKeyModal')">Close</button>
@@ -293,10 +308,8 @@
     <h3>Add Subscriber</h3>
     <div id="addSubError" class="alert alert-error" style="display:none"></div>
     <div class="form-group">
-      <label>API Key ID</label>
-      <select id="subKeyID">
-        <option value="">Select a key...</option>
-      </select>
+      <label>API Key</label>
+      <select id="subKeyID"><option value="">Select a key...</option></select>
     </div>
     <div class="form-group">
       <label>Channel</label>
@@ -309,8 +322,8 @@
     </div>
     <div class="form-group">
       <label>Config (JSON)</label>
-      <textarea id="subConfig" rows="4" style="font-family:monospace;font-size:13px" placeholder='{"chat_id": "-1001234567890"}'></textarea>
-      <div id="configHelp" class="text-muted" style="font-size:12px;margin-top:5px"></div>
+      <textarea id="subConfig" rows="4" style="font-family:monospace;font-size:13px"></textarea>
+      <div id="configHelp" class="hint"></div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal('addSubModal')">Cancel</button>
@@ -319,23 +332,40 @@
   </div>
 </div>
 
-<!-- CONFIRM STATUS MODAL -->
-<div class="modal-bg" id="statusModal">
+<!-- ADD SYMBOL MODAL -->
+<div class="modal-bg" id="addSymbolModal">
   <div class="modal">
-    <h3 id="statusModalTitle">Change Key Status</h3>
-    <p id="statusModalMsg" style="color:var(--muted);margin-bottom:20px;font-size:13px"></p>
+    <h3>Add Symbol</h3>
+    <div id="addSymbolError" class="alert alert-error" style="display:none"></div>
+    <div class="form-group">
+      <label>Symbol</label>
+      <input id="newSymbol" type="text" placeholder="e.g. EURUSD" style="text-transform:uppercase">
+      <div class="hint">Must match exactly what your broker uses.</div>
+    </div>
     <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('statusModal')">Cancel</button>
-      <button class="btn btn-danger" id="statusModalConfirm">Confirm</button>
+      <button class="btn btn-ghost" onclick="closeModal('addSymbolModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="addSymbol()">Add</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM MODAL (reusable) -->
+<div class="modal-bg" id="confirmModal">
+  <div class="modal">
+    <h3 id="confirmTitle">Confirm</h3>
+    <p id="confirmMsg" style="color:var(--muted);margin-bottom:20px;font-size:13px"></p>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('confirmModal')">Cancel</button>
+      <button class="btn btn-danger" id="confirmBtn">Confirm</button>
     </div>
   </div>
 </div>
 
 <script>
-const API = ''; // same origin — empty means relative URLs
-let accessToken = localStorage.getItem('mt4_access') || '';
-let refreshToken = localStorage.getItem('mt4_refresh') || '';
-let refreshTimer = null;
+const API = '';
+let accessToken = localStorage.getItem('tc_access') || '';
+let refreshToken = localStorage.getItem('tc_refresh') || '';
+let allKeys = []; // cached for dropdowns
 
 // ---- Auth ----
 
@@ -344,90 +374,63 @@ async function doLogin() {
   const password = document.getElementById('loginPassword').value;
   const errEl = document.getElementById('loginError');
   errEl.style.display = 'none';
-
-  if (!username || !password) { showError(errEl, 'Username and password required'); return; }
-
+  if (!username || !password) { showErr(errEl, 'Username and password required'); return; }
   try {
-    const res = await fetch(`${API}/auth/login`, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
+    const res = await fetch('/auth/login', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
       body: JSON.stringify({username, password})
     });
     const data = await res.json();
-    if (!res.ok) { showError(errEl, data.error || 'Login failed'); return; }
-
+    if (!res.ok) { showErr(errEl, data.error || 'Login failed'); return; }
     accessToken = data.access_token;
     refreshToken = data.refresh_token;
-    localStorage.setItem('mt4_access', accessToken);
-    localStorage.setItem('mt4_refresh', refreshToken);
-
+    localStorage.setItem('tc_access', accessToken);
+    localStorage.setItem('tc_refresh', refreshToken);
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
     startApp();
-  } catch(e) {
-    showError(errEl, 'Server unreachable');
-  }
+  } catch(e) { showErr(errEl, 'Server unreachable'); }
 }
 
 async function doLogout() {
-  try {
-    await apiFetch('/auth/logout', {method:'POST', body: JSON.stringify({refresh_token: refreshToken})});
-  } catch(e) {}
-  accessToken = '';
-  refreshToken = '';
-  localStorage.removeItem('mt4_access');
-  localStorage.removeItem('mt4_refresh');
+  try { await apiFetch('/auth/logout', {method:'POST', body: JSON.stringify({refresh_token: refreshToken})}); } catch(e) {}
+  localStorage.removeItem('tc_access');
+  localStorage.removeItem('tc_refresh');
   location.reload();
 }
 
-async function refreshAccessToken() {
+async function tryRefresh() {
   if (!refreshToken) return;
   try {
-    const res = await fetch(`${API}/auth/refresh`, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
+    const res = await fetch('/auth/refresh', {
+      method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({refresh_token: refreshToken})
     });
     if (!res.ok) { doLogout(); return; }
     const data = await res.json();
     accessToken = data.access_token;
-    localStorage.setItem('mt4_access', accessToken);
+    localStorage.setItem('tc_access', accessToken);
   } catch(e) {}
 }
 
-// ---- API helper ----
-
 async function apiFetch(path, opts = {}) {
-  opts.headers = opts.headers || {};
-  opts.headers['Authorization'] = `Bearer ${accessToken}`;
-  opts.headers['Content-Type'] = opts.headers['Content-Type'] || 'application/json';
-
-  let res = await fetch(`${API}${path}`, opts);
+  opts.headers = {...(opts.headers||{}), 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json'};
+  let res = await fetch(path, opts);
   if (res.status === 401) {
-    await refreshAccessToken();
+    await tryRefresh();
     opts.headers['Authorization'] = `Bearer ${accessToken}`;
-    res = await fetch(`${API}${path}`, opts);
+    res = await fetch(path, opts);
   }
   if (res.status === 401) { doLogout(); throw new Error('Unauthorized'); }
   return res;
 }
 
-// ---- App init ----
+// ---- Boot ----
 
 function startApp() {
-  if (accessToken) {
-    document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('app').style.display = 'block';
-  }
   loadMetrics();
   setInterval(loadMetrics, 15000);
-
-  document.getElementById('loginPassword').addEventListener('keydown', e => {
-    if (e.key === 'Enter') doLogin();
-  });
 }
-
-// ---- Navigation ----
 
 function showPage(name) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -435,102 +438,90 @@ function showPage(name) {
   document.getElementById('page-' + name).classList.add('active');
   document.getElementById('nav-' + name).classList.add('active');
   if (name === 'keys') loadKeys();
-  if (name === 'subscribers') loadSubscribers();
-  if (name === 'signals') loadSignals();
+  else if (name === 'subscribers') loadSubscribers();
+  else if (name === 'signals') loadSignals();
+  else if (name === 'symbols') loadSymbols();
+  else if (name === 'machines') loadMachinesPage();
 }
 
-// ---- Metrics ----
+// ---- Dashboard ----
 
 async function loadMetrics() {
   try {
     const res = await apiFetch('/admin/metrics');
     if (!res.ok) return;
     const m = await res.json();
-
     document.getElementById('m-total').textContent = m.total_signals ?? 0;
     document.getElementById('m-delivered').textContent = m.delivered_count ?? 0;
     document.getElementById('m-failed').textContent = m.failed_count ?? 0;
     document.getElementById('m-dead').textContent = m.dead_count ?? 0;
     document.getElementById('m-active-keys').textContent = m.active_api_keys ?? 0;
     document.getElementById('m-subs').textContent = m.active_subscribers ?? 0;
-
     const dl = m.dead_letter_queue || 0;
-    const alert = document.getElementById('deadLetterAlert');
-    if (dl > 0) {
-      document.getElementById('deadCount').textContent = dl;
-      alert.style.display = 'block';
-    } else {
-      alert.style.display = 'none';
-    }
-    document.getElementById('statusBadge').textContent = '● Connected';
-    document.getElementById('statusBadge').style.color = 'var(--green)';
-  } catch(e) {
-    document.getElementById('statusBadge').textContent = '● Error';
-    document.getElementById('statusBadge').style.color = 'var(--red)';
-  }
+    const alertEl = document.getElementById('deadLetterAlert');
+    document.getElementById('deadCount').textContent = dl;
+    alertEl.style.display = dl > 0 ? 'block' : 'none';
+    setStatus('Connected', 'var(--green)');
+  } catch(e) { setStatus('Error', 'var(--red)'); }
+}
+
+function setStatus(text, color) {
+  const el = document.getElementById('statusBadge');
+  el.textContent = '● ' + text;
+  el.style.color = color;
 }
 
 // ---- Signals ----
 
 async function loadSignals() {
   const tbody = document.getElementById('signalsTable');
-  tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:20px"><div class="spinner"></div></td></tr>';
+  tbody.innerHTML = spinner(9);
   try {
     const res = await apiFetch('/admin/signals?limit=50');
     const sigs = await res.json();
-    if (!sigs || sigs.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="9" class="empty-state">No signals yet</td></tr>';
-      return;
-    }
-    tbody.innerHTML = sigs.map(s => `
-      <tr>
-        <td class="text-mono">${fmtTime(s.received_at)}</td>
-        <td><span class="tag tag-${s.signal_type.toLowerCase()}">${s.signal_type}</span></td>
-        <td><strong>${s.symbol}</strong></td>
-        <td><span class="tag tag-${s.direction.toLowerCase()}">${s.direction}</span></td>
-        <td class="text-mono">${fmt(s.price, 5)}</td>
-        <td class="text-mono">${fmt(s.lot, 2)}</td>
-        <td class="text-mono">${s.sl ? fmt(s.sl, 5) : '—'}</td>
-        <td class="text-mono">${s.tp ? fmt(s.tp, 5) : '—'}</td>
-        <td class="text-mono">${s.ticket_id}</td>
-      </tr>`).join('');
-  } catch(e) {
-    tbody.innerHTML = '<tr><td colspan="9" class="empty-state">Failed to load</td></tr>';
-  }
+    if (!sigs?.length) { tbody.innerHTML = empty(9, 'No signals yet'); return; }
+    tbody.innerHTML = sigs.map(s => `<tr>
+      <td class="text-mono">${fmtTime(s.received_at)}</td>
+      <td><span class="tag tag-${s.signal_type?.toLowerCase()}">${s.signal_type}</span></td>
+      <td><strong>${esc(s.symbol)}</strong></td>
+      <td><span class="tag tag-${s.direction?.toLowerCase()}">${s.direction}</span></td>
+      <td class="text-mono">${fmt(s.price,5)}</td>
+      <td class="text-mono">${fmt(s.lot,2)}</td>
+      <td class="text-mono">${s.sl ? fmt(s.sl,5) : '—'}</td>
+      <td class="text-mono">${s.tp ? fmt(s.tp,5) : '—'}</td>
+      <td class="text-mono">${s.ticket_id}</td>
+    </tr>`).join('');
+  } catch(e) { tbody.innerHTML = empty(9, 'Failed to load'); }
 }
 
 // ---- Keys ----
 
 async function loadKeys() {
   const tbody = document.getElementById('keysTable');
-  tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:20px"><div class="spinner"></div></td></tr>';
+  tbody.innerHTML = spinner(8);
   try {
     const res = await apiFetch('/admin/keys');
-    const keys = await res.json();
-    if (!keys || keys.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="7" class="empty-state">No keys yet</td></tr>';
-      return;
-    }
-    tbody.innerHTML = keys.map(k => `
-      <tr>
-        <td><strong>${esc(k.owner)}</strong></td>
-        <td>${(k.scopes||[]).map(s=>`<span class="tag tag-active">${esc(s)}</span>`).join(' ')}</td>
-        <td><span class="tag tag-${k.status}">${k.status}</span></td>
-        <td class="text-muted">${esc(k.note||'')}</td>
-        <td class="text-mono">${k.last_used_at ? fmtTime(k.last_used_at) : 'Never'}</td>
-        <td class="text-mono">${fmtTime(k.created_at)}</td>
-        <td>
-          <div class="flex gap-2">
-            ${k.status === 'active' ? `<button class="btn btn-ghost btn-sm" onclick="setKeyStatus('${k.id}','${esc(k.owner)}','suspended')">Suspend</button>` : ''}
-            ${k.status === 'suspended' ? `<button class="btn btn-success btn-sm" onclick="setKeyStatus('${k.id}','${esc(k.owner)}','active')">Activate</button>` : ''}
-            ${k.status !== 'revoked' ? `<button class="btn btn-danger btn-sm" onclick="setKeyStatus('${k.id}','${esc(k.owner)}','revoked')">Revoke</button>` : ''}
-            ${k.status === 'active' ? `<button class="btn btn-ghost btn-sm" onclick="rotateKey('${k.id}')">Rotate</button>` : ''}
-          </div>
-        </td>
-      </tr>`).join('');
-  } catch(e) {
-    tbody.innerHTML = '<tr><td colspan="7" class="empty-state">Failed to load</td></tr>';
-  }
+    allKeys = await res.json() || [];
+    if (!allKeys.length) { tbody.innerHTML = empty(8, 'No keys yet'); return; }
+    tbody.innerHTML = allKeys.map(k => `<tr>
+      <td><strong>${esc(k.owner)}</strong></td>
+      <td>${(k.scopes||[]).map(s=>`<span class="tag tag-active">${esc(s)}</span>`).join(' ')}</td>
+      <td><span class="tag tag-${k.status}">${k.status}</span></td>
+      <td class="text-mono">${k.max_machines != null ? k.max_machines : '∞'}</td>
+      <td class="text-muted">${esc(k.note||'—')}</td>
+      <td class="text-mono">${k.last_used_at ? fmtTime(k.last_used_at) : 'Never'}</td>
+      <td class="text-mono">${fmtTime(k.created_at)}</td>
+      <td>
+        <div class="flex gap-2">
+          ${k.status==='active' ? `<button class="btn btn-ghost btn-sm" onclick="confirmAction('Suspend Key','Suspend key for &quot;${esc(k.owner)}&quot;? It stops working immediately.','btn-warning',()=>setKeyStatus('${k.id}','suspended'))">Suspend</button>` : ''}
+          ${k.status==='suspended' ? `<button class="btn btn-success btn-sm" onclick="confirmAction('Activate Key','Re-activate key for &quot;${esc(k.owner)}&quot;?','btn-success',()=>setKeyStatus('${k.id}','active'))">Activate</button>` : ''}
+          ${k.status!=='revoked' ? `<button class="btn btn-danger btn-sm" onclick="confirmAction('Revoke Key','Permanently revoke key for &quot;${esc(k.owner)}&quot;? This cannot be undone.','btn-danger',()=>setKeyStatus('${k.id}','revoked'))">Revoke</button>` : ''}
+          ${k.status==='active' ? `<button class="btn btn-ghost btn-sm" onclick="rotateKey('${k.id}')">Rotate</button>` : ''}
+          <button class="btn btn-ghost btn-sm" onclick="openSetMaxMachines('${k.id}','${esc(k.owner)}',${k.max_machines??'null'})">Machines</button>
+        </div>
+      </td>
+    </tr>`).join('');
+  } catch(e) { tbody.innerHTML = empty(8, 'Failed to load'); }
 }
 
 function openIssueKeyModal() {
@@ -538,6 +529,7 @@ function openIssueKeyModal() {
   document.getElementById('newKeyReveal').style.display = 'none';
   document.getElementById('keyOwner').value = '';
   document.getElementById('keyNote').value = '';
+  document.getElementById('keyMaxMachines').value = '';
   document.getElementById('issueKeyBtn').style.display = 'inline-flex';
   openModal('issueKeyModal');
 }
@@ -545,138 +537,107 @@ function openIssueKeyModal() {
 async function issueKey() {
   const owner = document.getElementById('keyOwner').value.trim();
   const note  = document.getElementById('keyNote').value.trim();
+  const maxRaw = document.getElementById('keyMaxMachines').value.trim();
   const errEl = document.getElementById('issueKeyError');
   errEl.style.display = 'none';
-
-  if (!owner) { showError(errEl, 'Owner is required'); return; }
-
+  if (!owner) { showErr(errEl, 'Owner is required'); return; }
   const scopes = [];
   if (document.getElementById('scope_copy').checked) scopes.push('copy:receive');
   if (document.getElementById('scope_read').checked) scopes.push('signals:read');
   if (document.getElementById('scope_webhook').checked) scopes.push('webhook:register');
-  if (scopes.length === 0) { showError(errEl, 'Select at least one scope'); return; }
+  if (!scopes.length) { showErr(errEl, 'Select at least one scope'); return; }
+
+  const body = {owner, note, scopes};
+  if (maxRaw !== '') body.max_machines = parseInt(maxRaw);
 
   const btn = document.getElementById('issueKeyBtn');
   btn.disabled = true;
   try {
-    const res = await apiFetch('/admin/keys', {
-      method: 'POST',
-      body: JSON.stringify({owner, note, scopes})
-    });
+    const res = await apiFetch('/admin/keys', {method:'POST', body: JSON.stringify(body)});
     const data = await res.json();
-    if (!res.ok) { showError(errEl, data.error || 'Failed'); return; }
-
+    if (!res.ok) { showErr(errEl, data.error || 'Failed'); return; }
     document.getElementById('newKeyValue').textContent = data.api_key;
     document.getElementById('newKeyReveal').style.display = 'block';
     btn.style.display = 'none';
     loadKeys();
-  } catch(e) {
-    showError(errEl, 'Request failed');
-  } finally {
-    btn.disabled = false;
-  }
+  } catch(e) { showErr(errEl, 'Request failed'); }
+  finally { btn.disabled = false; }
 }
 
-function setKeyStatus(id, owner, status) {
-  const modal = document.getElementById('statusModal');
-  const msgs = {
-    revoked:   `Permanently revoke key for "${owner}"? This cannot be undone.`,
-    suspended: `Suspend key for "${owner}"? The key will stop working immediately.`,
-    active:    `Re-activate key for "${owner}"?`
-  };
-  const btnColors = { revoked: 'btn-danger', suspended: 'btn-danger', active: 'btn-success' };
-  document.getElementById('statusModalTitle').textContent = `${status.charAt(0).toUpperCase() + status.slice(1)} Key`;
-  document.getElementById('statusModalMsg').textContent = msgs[status];
-  const btn = document.getElementById('statusModalConfirm');
-  btn.className = `btn ${btnColors[status]}`;
-  btn.textContent = 'Confirm';
-  btn.onclick = async () => {
-    try {
-      const res = await apiFetch(`/admin/keys/${id}/status`, {
-        method: 'PATCH', body: JSON.stringify({status})
-      });
-      if (res.ok) { closeModal('statusModal'); loadKeys(); }
-    } catch(e) {}
-  };
-  openModal('statusModal');
+async function setKeyStatus(id, status) {
+  try {
+    const res = await apiFetch(`/admin/keys/${id}/status`, {method:'PATCH', body: JSON.stringify({status})});
+    if (res.ok) { closeModal('confirmModal'); loadKeys(); }
+  } catch(e) {}
 }
 
 async function rotateKey(id) {
-  if (!confirm('Issue a new key for this entry? Old key stays valid for 24 hours.')) return;
   try {
-    const res = await apiFetch(`/admin/keys/${id}/rotate`, {
-      method: 'POST', body: JSON.stringify({rotate_after: '24h'})
-    });
+    const res = await apiFetch(`/admin/keys/${id}/rotate`, {method:'POST', body: JSON.stringify({rotate_after:'24h'})});
     const data = await res.json();
     if (!res.ok) { alert('Failed: ' + data.error); return; }
-    alert(`New key issued!\n\n${data.api_key}\n\nOld key expires: ${data.rotate_at}\n\nSave this key — it won't be shown again.`);
+    alert(`New key issued!\n\n${data.api_key}\n\nOld key valid until: ${new Date(data.rotate_at).toLocaleString()}\n\nSave this — it won't be shown again.`);
     loadKeys();
   } catch(e) { alert('Request failed'); }
+}
+
+function openSetMaxMachines(id, owner, current) {
+  const val = prompt(`Max machines for "${owner}"\n\nCurrent: ${current === null ? 'unlimited' : current}\n\nEnter a number (0 = none, blank = unlimited):`);
+  if (val === null) return;
+  const body = {max_machines: val.trim() === '' ? null : parseInt(val)};
+  apiFetch(`/admin/keys/${id}/machines`, {method:'PATCH', body: JSON.stringify(body)})
+    .then(r => { if (r.ok) loadKeys(); else r.json().then(d => alert(d.error)); })
+    .catch(() => alert('Request failed'));
 }
 
 // ---- Subscribers ----
 
 async function loadSubscribers() {
   const tbody = document.getElementById('subscribersTable');
-  tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px"><div class="spinner"></div></td></tr>';
+  tbody.innerHTML = spinner(6);
   try {
     const res = await apiFetch('/admin/subscribers');
-    const subs = await res.json();
-    if (!subs || subs.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="6" class="empty-state">No subscribers yet</td></tr>';
-      return;
-    }
-    tbody.innerHTML = subs.map(s => `
-      <tr>
-        <td><span class="tag tag-active">${esc(s.channel)}</span></td>
-        <td class="text-mono">${esc(JSON.stringify(s.config||{}))}</td>
-        <td class="text-mono" title="${s.key_id}">${s.key_id.slice(0,8)}…</td>
-        <td><span class="tag ${s.active ? 'tag-active' : 'tag-revoked'}">${s.active ? 'Active' : 'Inactive'}</span></td>
-        <td class="text-mono">${fmtTime(s.created_at)}</td>
-        <td>
-          <button class="btn btn-ghost btn-sm" onclick="toggleSubscriber('${s.id}', ${!s.active})">
-            ${s.active ? 'Disable' : 'Enable'}
-          </button>
-        </td>
-      </tr>`).join('');
-  } catch(e) {
-    tbody.innerHTML = '<tr><td colspan="6" class="empty-state">Failed to load</td></tr>';
-  }
+    const subs = await res.json() || [];
+    if (!subs.length) { tbody.innerHTML = empty(6, 'No subscribers yet'); return; }
+    tbody.innerHTML = subs.map(s => `<tr>
+      <td><span class="tag tag-active">${esc(s.channel)}</span></td>
+      <td class="text-mono" style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(JSON.stringify(s.config||{}))}">${esc(JSON.stringify(s.config||{}))}</td>
+      <td class="text-mono" title="${s.key_id}">${s.key_id?.slice(0,8)}…</td>
+      <td><span class="tag ${s.active?'tag-active':'tag-inactive'}">${s.active?'Active':'Inactive'}</span></td>
+      <td class="text-mono">${fmtTime(s.created_at)}</td>
+      <td><button class="btn btn-ghost btn-sm" onclick="toggleSubscriber('${s.id}',${!s.active})">${s.active?'Disable':'Enable'}</button></td>
+    </tr>`).join('');
+  } catch(e) { tbody.innerHTML = empty(6, 'Failed to load'); }
 }
 
 async function openAddSubscriberModal() {
   document.getElementById('addSubError').style.display = 'none';
   document.getElementById('subConfig').value = '';
   updateConfigHelp();
-
-  // Populate key dropdown
-  try {
-    const res = await apiFetch('/admin/keys');
-    const keys = await res.json();
-    const sel = document.getElementById('subKeyID');
-    sel.innerHTML = '<option value="">Select a key...</option>';
-    (keys||[]).filter(k => k.status === 'active').forEach(k => {
-      const opt = document.createElement('option');
-      opt.value = k.id;
-      opt.textContent = `${k.owner} (${k.id.slice(0,8)}…)`;
-      sel.appendChild(opt);
+  const sel = document.getElementById('subKeyID');
+  sel.innerHTML = '<option value="">Select a key...</option>';
+  (allKeys.length ? Promise.resolve(allKeys) : apiFetch('/admin/keys').then(r=>r.json()))
+    .then(keys => {
+      (keys||[]).filter(k=>k.status==='active').forEach(k => {
+        const o = document.createElement('option');
+        o.value = k.id;
+        o.textContent = `${k.owner} (${k.id.slice(0,8)}…)`;
+        sel.appendChild(o);
+      });
     });
-  } catch(e) {}
-
   openModal('addSubModal');
 }
 
 function updateConfigHelp() {
-  const channel = document.getElementById('subChannel').value;
   const helps = {
-    telegram:  '{"chat_id": "-1001234567890"}',
-    whatsapp:  '{"phone": "+237612345678"}',
-    webhook:   '{"url": "https://your-server.com/hook", "secret": "optional-secret"}',
-    mt4:       '{"symbols": ["EURUSD", "XAUUSD"]}  // empty = all symbols'
+    telegram: '{"chat_id": "-1001234567890"}',
+    whatsapp: '{"phone": "+237612345678"}',
+    webhook:  '{"url": "https://your-server.com/hook", "secret": "optional"}',
+    mt4:      '{"symbols": ["EURUSD", "XAUUSD"]}  // empty = all symbols'
   };
-  const el = document.getElementById('configHelp');
-  el.textContent = 'Example: ' + helps[channel];
-  document.getElementById('subConfig').placeholder = helps[channel];
+  const ch = document.getElementById('subChannel').value;
+  document.getElementById('configHelp').textContent = 'Example: ' + helps[ch];
+  document.getElementById('subConfig').placeholder = helps[ch];
 }
 
 async function addSubscriber() {
@@ -685,47 +646,183 @@ async function addSubscriber() {
   const configStr = document.getElementById('subConfig').value.trim();
   const errEl = document.getElementById('addSubError');
   errEl.style.display = 'none';
-
-  if (!keyID) { showError(errEl, 'Select an API key'); return; }
+  if (!keyID) { showErr(errEl, 'Select an API key'); return; }
   let config = {};
   if (configStr) {
-    try { config = JSON.parse(configStr); } catch(e) { showError(errEl, 'Invalid JSON in config'); return; }
+    try { config = JSON.parse(configStr); }
+    catch(e) { showErr(errEl, 'Invalid JSON in config'); return; }
   }
-
   try {
-    const res = await apiFetch('/admin/subscribers', {
-      method: 'POST',
-      body: JSON.stringify({key_id: keyID, channel, config})
-    });
+    const res = await apiFetch('/admin/subscribers', {method:'POST', body: JSON.stringify({key_id: keyID, channel, config})});
     const data = await res.json();
-    if (!res.ok) { showError(errEl, data.error || 'Failed'); return; }
+    if (!res.ok) { showErr(errEl, data.error || 'Failed'); return; }
     closeModal('addSubModal');
     loadSubscribers();
-  } catch(e) {
-    showError(errEl, 'Request failed');
-  }
+  } catch(e) { showErr(errEl, 'Request failed'); }
 }
 
 async function toggleSubscriber(id, active) {
   try {
-    await apiFetch(`/admin/subscribers/${id}/active`, {
-      method: 'PATCH', body: JSON.stringify({active})
-    });
+    await apiFetch(`/admin/subscribers/${id}/active`, {method:'PATCH', body: JSON.stringify({active})});
     loadSubscribers();
-  } catch(e) { alert('Failed to update subscriber'); }
+  } catch(e) { alert('Failed'); }
+}
+
+// ---- Symbols ----
+
+async function loadSymbols() {
+  const tbody = document.getElementById('symbolsTable');
+  tbody.innerHTML = spinner(4);
+  try {
+    const res = await apiFetch('/admin/symbols');
+    const syms = await res.json() || [];
+    if (!syms.length) { tbody.innerHTML = empty(4, 'No symbols configured'); return; }
+    tbody.innerHTML = syms.map(s => `<tr>
+      <td><strong>${esc(s.symbol)}</strong></td>
+      <td><span class="tag ${s.active?'tag-active':'tag-inactive'}">${s.active?'Active':'Inactive'}</span></td>
+      <td class="text-mono">${fmtTime(s.created_at)}</td>
+      <td>
+        <div class="flex gap-2">
+          <button class="btn btn-ghost btn-sm" onclick="toggleSymbol('${esc(s.symbol)}',${!s.active})">${s.active?'Disable':'Enable'}</button>
+          <button class="btn btn-danger btn-sm" onclick="confirmAction('Delete Symbol','Permanently delete ${esc(s.symbol)}? The worker will stop watching it within 5 minutes.','btn-danger',()=>deleteSymbol('${esc(s.symbol)}'))">Delete</button>
+        </div>
+      </td>
+    </tr>`).join('');
+  } catch(e) { tbody.innerHTML = empty(4, 'Failed to load'); }
+}
+
+function openAddSymbolModal() {
+  document.getElementById('addSymbolError').style.display = 'none';
+  document.getElementById('newSymbol').value = '';
+  openModal('addSymbolModal');
+}
+
+async function addSymbol() {
+  const symbol = document.getElementById('newSymbol').value.trim().toUpperCase();
+  const errEl = document.getElementById('addSymbolError');
+  errEl.style.display = 'none';
+  if (!symbol) { showErr(errEl, 'Symbol is required'); return; }
+  try {
+    const res = await apiFetch('/admin/symbols', {method:'POST', body: JSON.stringify({symbol})});
+    const data = await res.json();
+    if (!res.ok) { showErr(errEl, data.error || 'Failed'); return; }
+    closeModal('addSymbolModal');
+    loadSymbols();
+  } catch(e) { showErr(errEl, 'Request failed'); }
+}
+
+async function toggleSymbol(symbol, active) {
+  try {
+    await apiFetch(`/admin/symbols/${symbol}`, {method:'PATCH', body: JSON.stringify({active})});
+    loadSymbols();
+  } catch(e) { alert('Failed'); }
+}
+
+async function deleteSymbol(symbol) {
+  try {
+    await apiFetch(`/admin/symbols/${symbol}`, {method:'DELETE'});
+    closeModal('confirmModal');
+    loadSymbols();
+  } catch(e) { alert('Failed'); }
+}
+
+// ---- Machines ----
+
+async function loadMachinesPage() {
+  // Populate key filter dropdown
+  const sel = document.getElementById('machineKeyFilter');
+  if (sel.options.length <= 1) {
+    (allKeys.length ? Promise.resolve(allKeys) : apiFetch('/admin/keys').then(r=>r.json()))
+      .then(keys => {
+        (keys||[]).forEach(k => {
+          const o = document.createElement('option');
+          o.value = k.id;
+          o.textContent = `${k.owner} (${k.id.slice(0,8)}…)`;
+          sel.appendChild(o);
+        });
+      });
+  }
+  loadMachines();
+}
+
+async function loadMachines() {
+  const tbody = document.getElementById('machinesTable');
+  tbody.innerHTML = spinner(6);
+  const keyID = document.getElementById('machineKeyFilter').value;
+
+  try {
+    // If a key is selected, use the per-key endpoint; otherwise fetch all keys and aggregate
+    if (keyID) {
+      const res = await apiFetch(`/admin/keys/${keyID}/machines`);
+      const data = await res.json();
+      const machines = data.machines || [];
+      const keyOwner = allKeys.find(k=>k.id===keyID)?.owner || keyID.slice(0,8)+'…';
+      if (!machines.length) { tbody.innerHTML = empty(6, 'No machines registered for this key'); return; }
+      tbody.innerHTML = machines.map(m => machineRow(m, keyOwner, keyID)).join('');
+    } else {
+      // Aggregate across all keys
+      const keysRes = await apiFetch('/admin/keys');
+      const keys = await keysRes.json() || [];
+      const rows = [];
+      await Promise.all(keys.map(async k => {
+        const r = await apiFetch(`/admin/keys/${k.id}/machines`);
+        const d = await r.json();
+        (d.machines||[]).forEach(m => rows.push(machineRow(m, k.owner, k.id)));
+      }));
+      if (!rows.length) { tbody.innerHTML = empty(6, 'No machines registered yet'); return; }
+      tbody.innerHTML = rows.join('');
+    }
+  } catch(e) { tbody.innerHTML = empty(6, 'Failed to load'); }
+}
+
+function machineRow(m, owner, keyID) {
+  return `<tr>
+    <td class="text-mono"><strong>${esc(m.account_number)}</strong></td>
+    <td>${esc(owner)}</td>
+    <td class="text-mono" title="${keyID}">${keyID.slice(0,8)}…</td>
+    <td class="text-mono">${fmtTime(m.registered_at)}</td>
+    <td class="text-mono">${fmtTime(m.last_seen_at)}</td>
+    <td>
+      <button class="btn btn-danger btn-sm" onclick="confirmAction('Remove Machine','Remove account ${esc(m.account_number)} from this key? The slot will be freed immediately.','btn-danger',()=>removeMachine('${keyID}','${esc(m.account_number)}'))">Remove</button>
+    </td>
+  </tr>`;
+}
+
+async function removeMachine(keyID, account) {
+  try {
+    const res = await apiFetch(`/admin/keys/${keyID}/machines/${account}`, {method:'DELETE'});
+    if (res.ok) { closeModal('confirmModal'); loadMachines(); }
+    else { const d = await res.json(); alert(d.error); }
+  } catch(e) { alert('Failed'); }
+}
+
+// ---- Confirm modal ----
+
+function confirmAction(title, msg, btnClass, onConfirm) {
+  document.getElementById('confirmTitle').textContent = title;
+  document.getElementById('confirmMsg').innerHTML = msg;
+  const btn = document.getElementById('confirmBtn');
+  btn.className = 'btn ' + btnClass;
+  btn.onclick = onConfirm;
+  openModal('confirmModal');
 }
 
 // ---- Utils ----
 
 function openModal(id) { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-function showError(el, msg) { el.textContent = msg; el.style.display = 'block'; }
+function showErr(el, msg) { el.textContent = msg; el.style.display = 'block'; }
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-function fmt(n, d) { return Number(n).toFixed(d); }
+function fmt(n,d) { return Number(n||0).toFixed(d); }
 function fmtTime(t) {
   if (!t) return '—';
-  const d = new Date(t);
-  return d.toLocaleString('en-GB', {month:'short',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+  return new Date(t).toLocaleString('en-GB',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+}
+function spinner(cols) {
+  return `<tr><td colspan="${cols}" style="text-align:center;padding:24px"><div class="spinner" style="margin:0 auto"></div></td></tr>`;
+}
+function empty(cols, msg) {
+  return `<tr><td colspan="${cols}" class="empty-state">${msg}</td></tr>`;
 }
 
 // Close modals on backdrop click
@@ -733,13 +830,15 @@ document.querySelectorAll('.modal-bg').forEach(bg => {
   bg.addEventListener('click', e => { if (e.target === bg) bg.classList.remove('open'); });
 });
 
-// Enter key on login
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('loginPassword').addEventListener('keydown', e => {
     if (e.key === 'Enter') doLogin();
   });
-  // Auto-login if token exists
-  if (accessToken) startApp();
+  if (accessToken) {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    startApp();
+  }
 });
 </script>
 </body>
