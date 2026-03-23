@@ -147,11 +147,10 @@
   @media (max-width: 768px) {
     .sidebar { display: none; }
     .bottom-nav { display: block; }
-    .content { padding: 16px 12px 76px; /* room for bottom nav */ }
+    .content { padding: 16px 12px 76px; }
     .page-title { font-size: 17px; }
     .stat-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
     .stat-value { font-size: 22px; }
-    /* Hide less critical table columns on mobile */
     .col-hide-mobile { display: none; }
     td, th { padding: 10px 10px; }
     .btn-sm { padding: 5px 10px; font-size: 11px; }
@@ -306,7 +305,6 @@
         <div class="alert alert-info" style="margin-bottom:16px">
           The worker picks up symbol changes within 5 minutes. No restart needed.
         </div>
-        <!-- Symbol cards grid (replaces table for better mobile UX) -->
         <div id="symbolsContainer"></div>
       </div>
 
@@ -457,7 +455,68 @@
 const API = '';
 let accessToken = localStorage.getItem('tc_access') || '';
 let refreshToken = localStorage.getItem('tc_refresh') || '';
-let allKeys = [];
+let allKeys = []; // always stores normalised key objects
+
+// ---- Normalise helpers ----
+// All API responses use PascalCase from Go JSON serialisation.
+// Normalise once at the boundary so the rest of the code uses consistent camelCase.
+
+function normaliseKey(k) {
+  return {
+    id:          k.ID          ?? k.id,
+    owner:       k.Owner       ?? k.owner,
+    note:        k.Note        ?? k.note,
+    scopes:      k.Scopes      ?? k.scopes,
+    status:      k.Status      ?? k.status,
+    maxMachines: k.MaxMachines ?? k.max_machines,
+    lastUsedAt:  k.LastUsedAt  ?? k.last_used_at,
+    createdAt:   k.CreatedAt   ?? k.created_at,
+  };
+}
+
+function normaliseSignal(s) {
+  return {
+    id:          s.ID          ?? s.id,
+    ticketId:    s.TicketID    ?? s.ticket_id,
+    signalType:  s.SignalType  ?? s.signal_type,
+    symbol:      s.Symbol      ?? s.symbol,
+    direction:   s.Direction   ?? s.direction,
+    price:       s.Price       ?? s.price,
+    sl:          s.SL          ?? s.sl,
+    tp:          s.TP          ?? s.tp,
+    lot:         s.Lot         ?? s.lot,
+    sourceKeyId: s.SourceKeyID ?? s.source_key_id,
+    receivedAt:  s.ReceivedAt  ?? s.received_at,
+  };
+}
+
+function normaliseSubscriber(s) {
+  return {
+    id:        s.ID        ?? s.id,
+    keyId:     s.KeyID     ?? s.key_id,
+    channel:   s.Channel   ?? s.channel,
+    config:    s.Config    ?? s.config,
+    active:    s.Active    ?? s.active,
+    createdAt: s.CreatedAt ?? s.created_at,
+  };
+}
+
+function normaliseSymbol(s) {
+  return {
+    id:        s.ID        ?? s.id,
+    symbol:    s.Symbol    ?? s.symbol,
+    active:    s.Active    ?? s.active,
+    createdAt: s.CreatedAt ?? s.created_at,
+  };
+}
+
+function normaliseMachine(m) {
+  return {
+    accountNumber: m.AccountNumber ?? m.account_number,
+    registeredAt:  m.RegisteredAt  ?? m.registered_at,
+    lastSeenAt:    m.LastSeenAt    ?? m.last_seen_at,
+  };
+}
 
 // ---- Auth ----
 
@@ -576,18 +635,19 @@ async function loadSignals() {
   tbody.innerHTML = spinner(9);
   try {
     const res = await apiFetch('/admin/signals?limit=50');
-    const sigs = await res.json();
-    if (!sigs?.length) { tbody.innerHTML = empty(9, 'No signals yet'); return; }
+    const raw = await res.json();
+    if (!raw?.length) { tbody.innerHTML = empty(9, 'No signals yet'); return; }
+    const sigs = raw.map(normaliseSignal);
     tbody.innerHTML = sigs.map(s => `<tr>
-      <td class="text-mono">${fmtTime(s.received_at)}</td>
-      <td><span class="tag tag-${s.signal_type?.toLowerCase()}">${s.signal_type}</span></td>
+      <td class="text-mono">${fmtTime(s.receivedAt)}</td>
+      <td><span class="tag tag-${s.signalType?.toLowerCase()}">${s.signalType}</span></td>
       <td><strong>${esc(s.symbol)}</strong></td>
       <td><span class="tag tag-${s.direction?.toLowerCase()}">${s.direction}</span></td>
       <td class="text-mono">${fmt(s.price,5)}</td>
       <td class="text-mono col-hide-mobile">${fmt(s.lot,2)}</td>
       <td class="text-mono col-hide-mobile">${s.sl ? fmt(s.sl,5) : '—'}</td>
       <td class="text-mono col-hide-mobile">${s.tp ? fmt(s.tp,5) : '—'}</td>
-      <td class="text-mono col-hide-mobile">${s.ticket_id}</td>
+      <td class="text-mono col-hide-mobile">${s.ticketId}</td>
     </tr>`).join('');
   } catch(e) { tbody.innerHTML = empty(9, 'Failed to load'); }
 }
@@ -599,23 +659,24 @@ async function loadKeys() {
   tbody.innerHTML = spinner(8);
   try {
     const res = await apiFetch('/admin/keys');
-    allKeys = await res.json() || [];
+    const raw = await res.json() || [];
+    allKeys = raw.map(normaliseKey); // always store normalised
     if (!allKeys.length) { tbody.innerHTML = empty(8, 'No keys yet'); return; }
     tbody.innerHTML = allKeys.map(k => `<tr>
       <td><strong>${esc(k.owner)}</strong></td>
       <td class="col-hide-mobile">${(k.scopes||[]).map(s=>`<span class="tag tag-active">${esc(s)}</span>`).join(' ')}</td>
       <td><span class="tag tag-${k.status}">${k.status}</span></td>
-      <td class="text-mono col-hide-mobile">${k.max_machines != null ? k.max_machines : '∞'}</td>
+      <td class="text-mono col-hide-mobile">${k.maxMachines != null ? k.maxMachines : '∞'}</td>
       <td class="text-muted col-hide-mobile">${esc(k.note||'—')}</td>
-      <td class="text-mono col-hide-mobile">${k.last_used_at ? fmtTime(k.last_used_at) : 'Never'}</td>
-      <td class="text-mono col-hide-mobile">${fmtTime(k.created_at)}</td>
+      <td class="text-mono col-hide-mobile">${k.lastUsedAt ? fmtTime(k.lastUsedAt) : 'Never'}</td>
+      <td class="text-mono col-hide-mobile">${fmtTime(k.createdAt)}</td>
       <td>
         <div class="flex gap-2" style="flex-wrap:wrap">
           ${k.status==='active' ? `<button class="btn btn-ghost btn-sm" onclick="confirmAction('Suspend Key','Suspend key for &quot;${esc(k.owner)}&quot;?','btn-warning',()=>setKeyStatus('${k.id}','suspended'))">Suspend</button>` : ''}
           ${k.status==='suspended' ? `<button class="btn btn-success btn-sm" onclick="confirmAction('Activate Key','Re-activate key for &quot;${esc(k.owner)}&quot;?','btn-success',()=>setKeyStatus('${k.id}','active'))">Activate</button>` : ''}
           ${k.status!=='revoked' ? `<button class="btn btn-danger btn-sm" onclick="confirmAction('Revoke Key','Permanently revoke key for &quot;${esc(k.owner)}&quot;?','btn-danger',()=>setKeyStatus('${k.id}','revoked'))">Revoke</button>` : ''}
           ${k.status==='active' ? `<button class="btn btn-ghost btn-sm" onclick="rotateKey('${k.id}')">Rotate</button>` : ''}
-          <button class="btn btn-ghost btn-sm" onclick="openSetMaxMachines('${k.id}','${esc(k.owner)}',${k.max_machines??'null'})">Machines</button>
+          <button class="btn btn-ghost btn-sm" onclick="openSetMaxMachines('${k.id}','${esc(k.owner)}',${k.maxMachines??'null'})">Machines</button>
         </div>
       </td>
     </tr>`).join('');
@@ -697,14 +758,7 @@ async function loadSubscribers() {
     const res = await apiFetch('/admin/subscribers');
     const raw = await res.json() || [];
     if (!raw.length) { tbody.innerHTML = empty(6, 'No subscribers yet'); return; }
-    const subs = raw.map(s => ({
-      id:        s.ID        ?? s.id,
-      keyId:     s.KeyID     ?? s.key_id,
-      channel:   s.Channel   ?? s.channel,
-      config:    s.Config    ?? s.config,
-      active:    s.Active    ?? s.active,
-      createdAt: s.CreatedAt ?? s.created_at,
-    }));
+    const subs = raw.map(normaliseSubscriber);
     tbody.innerHTML = subs.map(s => `<tr>
       <td><span class="tag tag-active">${esc(s.channel)}</span></td>
       <td class="text-mono col-hide-mobile" style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(JSON.stringify(s.config||{}))}">${esc(JSON.stringify(s.config||{}))}</td>
@@ -722,7 +776,7 @@ async function openAddSubscriberModal() {
   updateConfigHelp();
   const sel = document.getElementById('subKeyID');
   sel.innerHTML = '<option value="">Select a key...</option>';
-  (allKeys.length ? Promise.resolve(allKeys) : apiFetch('/admin/keys').then(r=>r.json()))
+  (allKeys.length ? Promise.resolve(allKeys) : apiFetch('/admin/keys').then(r=>r.json().then(raw=>raw.map(normaliseKey))))
     .then(keys => {
       (keys||[]).filter(k=>k.status==='active').forEach(k => {
         const o = document.createElement('option');
@@ -775,26 +829,19 @@ async function toggleSubscriber(id, active) {
 }
 
 // ---- Symbols ----
-// API returns PascalCase: { ID, Symbol, Active, CreatedAt }
 
 async function loadSymbols() {
   const container = document.getElementById('symbolsContainer');
   container.innerHTML = `<div style="text-align:center;padding:32px"><div class="spinner" style="margin:0 auto"></div></div>`;
   try {
     const res = await apiFetch('/admin/symbols');
-    const syms = await res.json() || [];
-    if (!syms.length) {
+    const raw = await res.json() || [];
+    if (!raw.length) {
       container.innerHTML = `<div class="empty-state">No symbols configured</div>`;
       return;
     }
-    // Normalise keys — handle both PascalCase (API) and lowercase (legacy)
-    const normalised = syms.map(s => ({
-      id:        s.ID        ?? s.id,
-      symbol:    s.Symbol    ?? s.symbol,
-      active:    s.Active    ?? s.active,
-      createdAt: s.CreatedAt ?? s.created_at,
-    }));
-    container.innerHTML = `<div class="symbol-grid">${normalised.map(s => `
+    const syms = raw.map(normaliseSymbol);
+    container.innerHTML = `<div class="symbol-grid">${syms.map(s => `
       <div class="symbol-card">
         <div class="sym-name">💹 ${esc(s.symbol)}</div>
         <span class="tag ${s.active ? 'tag-active' : 'tag-inactive'}">${s.active ? 'Active' : 'Inactive'}</span>
@@ -847,7 +894,7 @@ async function deleteSymbol(symbol) {
 async function loadMachinesPage() {
   const sel = document.getElementById('machineKeyFilter');
   if (sel.options.length <= 1) {
-    (allKeys.length ? Promise.resolve(allKeys) : apiFetch('/admin/keys').then(r=>r.json()))
+    (allKeys.length ? Promise.resolve(allKeys) : apiFetch('/admin/keys').then(r=>r.json().then(raw=>raw.map(normaliseKey))))
       .then(keys => {
         (keys||[]).forEach(k => {
           const o = document.createElement('option');
@@ -868,18 +915,20 @@ async function loadMachines() {
     if (keyID) {
       const res = await apiFetch(`/admin/keys/${keyID}/machines`);
       const data = await res.json();
-      const machines = data.machines || [];
+      const machines = (data.machines || data.Machines || []).map(normaliseMachine);
       const keyOwner = allKeys.find(k=>k.id===keyID)?.owner || keyID.slice(0,8)+'…';
       if (!machines.length) { tbody.innerHTML = empty(6, 'No machines registered for this key'); return; }
       tbody.innerHTML = machines.map(m => machineRow(m, keyOwner, keyID)).join('');
     } else {
       const keysRes = await apiFetch('/admin/keys');
-      const keys = await keysRes.json() || [];
+      const rawKeys = await keysRes.json() || [];
+      const keys = rawKeys.map(normaliseKey);
       const rows = [];
       await Promise.all(keys.map(async k => {
         const r = await apiFetch(`/admin/keys/${k.id}/machines`);
         const d = await r.json();
-        (d.machines||[]).forEach(m => rows.push(machineRow(m, k.owner, k.id)));
+        const machines = (d.machines || d.Machines || []).map(normaliseMachine);
+        machines.forEach(m => rows.push(machineRow(m, k.owner, k.id)));
       }));
       if (!rows.length) { tbody.innerHTML = empty(6, 'No machines registered yet'); return; }
       tbody.innerHTML = rows.join('');
@@ -889,13 +938,13 @@ async function loadMachines() {
 
 function machineRow(m, owner, keyID) {
   return `<tr>
-    <td class="text-mono"><strong>${esc(m.account_number)}</strong></td>
+    <td class="text-mono"><strong>${esc(m.accountNumber)}</strong></td>
     <td class="col-hide-mobile">${esc(owner)}</td>
     <td class="text-mono col-hide-mobile" title="${keyID}">${keyID.slice(0,8)}…</td>
-    <td class="text-mono col-hide-mobile">${fmtTime(m.registered_at)}</td>
-    <td class="text-mono col-hide-mobile">${fmtTime(m.last_seen_at)}</td>
+    <td class="text-mono col-hide-mobile">${fmtTime(m.registeredAt)}</td>
+    <td class="text-mono col-hide-mobile">${fmtTime(m.lastSeenAt)}</td>
     <td>
-      <button class="btn btn-danger btn-sm" onclick="confirmAction('Remove Machine','Remove account ${esc(m.account_number)}?','btn-danger',()=>removeMachine('${keyID}','${esc(m.account_number)}'))">Remove</button>
+      <button class="btn btn-danger btn-sm" onclick="confirmAction('Remove Machine','Remove account ${esc(m.accountNumber)}?','btn-danger',()=>removeMachine('${keyID}','${esc(m.accountNumber)}'))">Remove</button>
     </td>
   </tr>`;
 }
