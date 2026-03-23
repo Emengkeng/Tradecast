@@ -1,6 +1,9 @@
 package store
 
 import (
+	"log"
+	"os"
+	"path/filepath"
 	"context"
 	"database/sql"
 	"encoding/json"
@@ -594,4 +597,54 @@ func (s *Store) TouchMachineLastSeen(ctx context.Context, keyID uuid.UUID, accou
 	s.db.ExecContext(ctx,
 		`UPDATE key_machines SET last_seen_at=NOW() WHERE key_id=$1 AND account_number=$2`,
 		keyID, accountNumber)
+}
+
+func (s *Store) Migrate(ctx context.Context, migrationsDir string) error {
+	entries, err := os.ReadDir(migrationsDir)
+	if err != nil {
+		return fmt.Errorf("read migrations dir: %w", err)
+	}
+
+	// Create migrations tracking table if it doesn't exist
+	_, err = s.db.ExecContext(ctx, `
+		CREATE TABLE IF NOT EXISTS schema_migrations (
+			filename TEXT PRIMARY KEY,
+			applied_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+		)`)
+	if err != nil {
+		return fmt.Errorf("create schema_migrations: %w", err)
+	}
+
+	for _, entry := range entries {
+		if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".sql") {
+			continue
+		}
+
+		// Check if already applied
+		var count int
+		s.db.QueryRowContext(ctx,
+			`SELECT COUNT(*) FROM schema_migrations WHERE filename = $1`,
+			entry.Name()).Scan(&count)
+		if count > 0 {
+			continue // already applied
+		}
+
+		// Read and execute
+		path := filepath.Join(migrationsDir, entry.Name())
+		sql, err := os.ReadFile(path)
+		if err != nil {
+			return fmt.Errorf("read migration %s: %w", entry.Name(), err)
+		}
+
+		if _, err := s.db.ExecContext(ctx, string(sql)); err != nil {
+			return fmt.Errorf("apply migration %s: %w", entry.Name(), err)
+		}
+
+		// Record it
+		s.db.ExecContext(ctx,
+			`INSERT INTO schema_migrations (filename) VALUES ($1)`, entry.Name())
+
+		log.Printf("migration applied: %s", entry.Name())
+	}
+	return nil
 }

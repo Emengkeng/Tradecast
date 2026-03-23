@@ -36,6 +36,12 @@ func main() {
 		os.Exit(1)
 	}
 
+	if err := st.Migrate(context.Background(), "migrations"); err != nil {
+		logger.Error("migration failed", "err", err)
+		os.Exit(1)
+	}
+	logger.Info("migrations applied")
+
 	logger.Info("worker starting")
 
 	// Build notification handlers

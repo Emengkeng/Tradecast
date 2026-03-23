@@ -38,6 +38,12 @@ func main() {
 	}
 	logger.Info("redis connected")
 
+	if err := st.Migrate(context.Background(), "migrations"); err != nil {
+		logger.Error("migration failed", "err", err)
+		os.Exit(1)
+	}
+	logger.Info("migrations applied")
+
 	authSvc := auth.NewService(st, c, cfg.Auth, logger)
 	sigHandler := signalpkg.NewHandler(st, c, cfg.Auth, logger)
 	adminHandler := admin.New(st, c, authSvc, logger)
