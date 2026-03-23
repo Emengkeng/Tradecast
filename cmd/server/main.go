@@ -76,15 +76,15 @@ func main() {
 	mux.Handle("GET /admin/signals", adminMW(http.HandlerFunc(adminHandler.ListSignals)))
 
 	// Machine binding management
-	mux.Handle("GET /admin/keys/{id}/machines", adminMW(http.HandlerFunc(adminHandler.ListMachines)))
-	mux.Handle("DELETE /admin/keys/{id}/machines/{account}", adminMW(http.HandlerFunc(adminHandler.RemoveMachine)))
-	mux.Handle("PATCH /admin/keys/{id}/machines", adminMW(http.HandlerFunc(adminHandler.SetMaxMachines)))
+	// mux.Handle("GET /admin/keys/{id}/machines", adminMW(http.HandlerFunc(adminHandler.ListMachines)))
+	// mux.Handle("DELETE /admin/keys/{id}/machines/{account}", adminMW(http.HandlerFunc(adminHandler.RemoveMachine)))
+	// mux.Handle("PATCH /admin/keys/{id}/machines", adminMW(http.HandlerFunc(adminHandler.SetMaxMachines)))
 
 	// Symbol management
-	mux.Handle("GET /admin/symbols", adminMW(http.HandlerFunc(adminHandler.ListSymbols)))
-	mux.Handle("POST /admin/symbols", adminMW(http.HandlerFunc(adminHandler.AddSymbol)))
-	mux.Handle("PATCH /admin/symbols/{symbol}", adminMW(http.HandlerFunc(adminHandler.SetSymbolActive)))
-	mux.Handle("DELETE /admin/symbols/{symbol}", adminMW(http.HandlerFunc(adminHandler.DeleteSymbol)))
+	// mux.Handle("GET /admin/symbols", adminMW(http.HandlerFunc(adminHandler.ListSymbols)))
+	// mux.Handle("POST /admin/symbols", adminMW(http.HandlerFunc(adminHandler.AddSymbol)))
+	// mux.Handle("PATCH /admin/symbols/{symbol}", adminMW(http.HandlerFunc(adminHandler.SetSymbolActive)))
+	// mux.Handle("DELETE /admin/symbols/{symbol}", adminMW(http.HandlerFunc(adminHandler.DeleteSymbol)))
 
 	// Machine binding management
 	mux.Handle("GET /admin/machines", adminMW(http.HandlerFunc(adminHandler.ListAllMachines)))
@@ -93,15 +93,15 @@ func main() {
 	mux.Handle("PATCH /admin/keys/{id}/max-machines", adminMW(http.HandlerFunc(adminHandler.SetKeyMaxMachines)))
 
 	// Symbol management
-	mux.Handle("GET /admin/symbols", adminMW(http.HandlerFunc(adminHandler.ListSymbols)))
-	mux.Handle("POST /admin/symbols", adminMW(http.HandlerFunc(adminHandler.AddSymbol)))
-	mux.Handle("PATCH /admin/symbols/{symbol}", adminMW(http.HandlerFunc(adminHandler.SetSymbolActive)))
-	mux.Handle("DELETE /admin/symbols/{symbol}", adminMW(http.HandlerFunc(adminHandler.DeleteSymbol)))
+	// mux.Handle("GET /admin/symbols", adminMW(http.HandlerFunc(adminHandler.ListSymbols)))
+	// mux.Handle("POST /admin/symbols", adminMW(http.HandlerFunc(adminHandler.AddSymbol)))
+	// mux.Handle("PATCH /admin/symbols/{symbol}", adminMW(http.HandlerFunc(adminHandler.SetSymbolActive)))
+	// mux.Handle("DELETE /admin/symbols/{symbol}", adminMW(http.HandlerFunc(adminHandler.DeleteSymbol)))
 
 	// Machine management
-	mux.Handle("GET /admin/keys/{id}/machines", adminMW(http.HandlerFunc(adminHandler.ListMachines)))
-	mux.Handle("DELETE /admin/keys/{id}/machines/{account}", adminMW(http.HandlerFunc(adminHandler.RemoveMachine)))
-	mux.Handle("PATCH /admin/keys/{id}/max-machines", adminMW(http.HandlerFunc(adminHandler.SetMaxMachines)))
+	// mux.Handle("GET /admin/keys/{id}/machines/list", adminMW(http.HandlerFunc(adminHandler.ListMachines)))
+	// mux.Handle("DELETE /admin/keys/{id}/machines/{account}", adminMW(http.HandlerFunc(adminHandler.RemoveMachine)))
+	// mux.Handle("PATCH /admin/keys/{id}/max-machines", adminMW(http.HandlerFunc(adminHandler.SetMaxMachines)))
 
 	// Symbol management
 	mux.Handle("GET /admin/symbols", adminMW(http.HandlerFunc(adminHandler.ListSymbols)))
