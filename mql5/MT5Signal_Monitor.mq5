@@ -188,18 +188,49 @@ void SendSignal(ulong ticket, string sigType, string symbol, string direction,
 //+------------------------------------------------------------------+
 // HMAC-SHA256 via CryptEncode (available in MT5)
 string ComputeHMAC(string key, string message) {
-   uchar keyBytes[], msgBytes[], resultBytes[];
+   uchar keyBytes[], msgBytes[], innerData[], outerData[];
+   uchar innerHash[], finalHash[];
+   uchar ipad[], opad[];
+   int blockSize = 64; // SHA256 block size
+
    StringToCharArray(key,     keyBytes, 0, StringLen(key));
    StringToCharArray(message, msgBytes, 0, StringLen(message));
 
-   if (CryptEncode(CRYPT_HASH_SHA256_HMAC, msgBytes, keyBytes, resultBytes) <= 0) {
-      Print("[MT5Signal] HMAC computation failed");
-      return "";
+   // If key longer than block size, hash it first
+   if (ArraySize(keyBytes) > blockSize) {
+      uchar emptyKey[], hashedKey[];
+      CryptEncode(CRYPT_HASH_SHA256, keyBytes, emptyKey, hashedKey);
+      ArrayCopy(keyBytes, hashedKey);
    }
 
+   // Pad key to block size
+   ArrayResize(keyBytes, blockSize, 0);
+
+   // Build ipad (0x36) and opad (0x5C) XOR'd with key
+   ArrayResize(ipad, blockSize);
+   ArrayResize(opad, blockSize);
+   for (int i = 0; i < blockSize; i++) {
+      ipad[i] = keyBytes[i] ^ 0x36;
+      opad[i] = keyBytes[i] ^ 0x5C;
+   }
+
+   // Inner hash: SHA256(ipad + message)
+   ArrayResize(innerData, blockSize + ArraySize(msgBytes));
+   ArrayCopy(innerData, ipad, 0, 0, blockSize);
+   ArrayCopy(innerData, msgBytes, blockSize, 0);
+   uchar emptyKey[];
+   CryptEncode(CRYPT_HASH_SHA256, innerData, emptyKey, innerHash);
+
+   // Outer hash: SHA256(opad + innerHash)
+   ArrayResize(outerData, blockSize + ArraySize(innerHash));
+   ArrayCopy(outerData, opad, 0, 0, blockSize);
+   ArrayCopy(outerData, innerHash, blockSize, 0);
+   CryptEncode(CRYPT_HASH_SHA256, outerData, emptyKey, finalHash);
+
+   // Convert to hex string
    string hexResult = "";
-   for (int i = 0; i < ArraySize(resultBytes); i++)
-      hexResult += StringFormat("%02x", resultBytes[i]);
+   for (int i = 0; i < ArraySize(finalHash); i++)
+      hexResult += StringFormat("%02x", finalHash[i]);
    return hexResult;
 }
 
