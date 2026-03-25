@@ -345,8 +345,8 @@ func (s *Service) APIKeyMiddleware(requiredScope string) func(http.Handler) http
 				return
 			}
 
-			// Machine binding — check X-MT4-Account header
-			accountNumber := strings.TrimSpace(r.Header.Get("X-MT4-Account"))
+			// Machine binding — check X-Account-ID header
+			accountNumber := strings.TrimSpace(r.Header.Get("X-Account-ID"))
 			if err := s.CheckMachineBinding(r.Context(), ck, accountNumber); err != nil {
 				s.logger.Warn("machine binding rejected",
 					"key_id", ck.ID, "account", accountNumber, "err", err)
