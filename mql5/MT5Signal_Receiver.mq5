@@ -16,13 +16,25 @@ input int    Slippage       = 3;       // In points
 input bool   EnableModify   = true;
 input bool   EnableClose    = true;
 input long   Magic          = 88001;
+input string StateFile = "mt5receiver_processed.csv";
 
-string lastProcessedKey = ""; // ticket_id + ":" + signal_type
+// string lastProcessedKey = ""; // ticket_id + ":" + signal_type
+
+struct ProcessedSignal {
+   long   ticketID;
+   string signalType;
+   datetime processedAt;
+};
+
+ProcessedSignal processedSignals[];
+int processedCount = 0;
 
 //+------------------------------------------------------------------+
 int OnInit() {
+   LoadProcessedSignals();
    EventSetMillisecondTimer(PollIntervalMs);
    Print("[Receiver] Started. Watching: ", SymbolToWatch, " Magic: ", Magic);
+   Print("[Receiver] Loaded ", processedCount, " processed signals from file.");
    return INIT_SUCCEEDED;
 }
 
@@ -66,10 +78,9 @@ void PollAndAct() {
    double tp         = JSONGetDouble(json, "tp");
    double lot        = JSONGetDouble(json, "lot") * LotMultiplier;
 
-   // Deduplicate
-   string key = IntegerToString(ticketID) + ":" + signalType;
-   if (key == lastProcessedKey) return;
-   lastProcessedKey = key;
+   if (IsAlreadyProcessed(ticketID, signalType)) {
+      return;  // Already handled this signal
+   }
 
    Print("[Receiver] Got signal: ", signalType, " ", direction, " ", SymbolToWatch,
          " price=", price, " lot=", lot, " ticket=", ticketID);
@@ -78,6 +89,9 @@ void PollAndAct() {
    else if (signalType == "MODIFY"  && EnableModify ) ModifyTrade(ticketID, sl, tp);
    else if (signalType == "CLOSE"   && EnableClose  ) CloseTrade(ticketID);
    else if (signalType == "PARTIAL" && EnableClose  ) PartialClose(ticketID, lot);
+   
+   // Mark as processed and save to file
+   MarkAsProcessed(ticketID, signalType);
 }
 
 //+------------------------------------------------------------------+
@@ -247,4 +261,105 @@ string JSONGetRaw(string json, string key) {
       end++;
    }
    return StringSubstr(json, start, end - start);
+}
+
+//+------------------------------------------------------------------+
+// File-based deduplication
+//+------------------------------------------------------------------+
+bool IsAlreadyProcessed(long ticketID, string signalType) {
+   for (int i = 0; i < processedCount; i++) {
+      if (processedSignals[i].ticketID == ticketID && 
+          processedSignals[i].signalType == signalType) {
+         return true;
+      }
+   }
+   return false;
+}
+
+void MarkAsProcessed(long ticketID, string signalType) {
+   ArrayResize(processedSignals, processedCount + 1);
+   processedSignals[processedCount].ticketID = ticketID;
+   processedSignals[processedCount].signalType = signalType;
+   processedSignals[processedCount].processedAt = TimeCurrent();
+   processedCount++;
+   
+   SaveProcessedSignals();
+   
+   // Optional: Clean up old entries (older than 24 hours)
+   CleanupOldSignals();
+}
+
+void SaveProcessedSignals() {
+   int handle = FileOpen(StateFile, FILE_WRITE | FILE_CSV | FILE_COMMON);
+   if (handle == INVALID_HANDLE) {
+      Print("[Receiver] Cannot open state file for writing: ", StateFile);
+      return;
+   }
+   
+   for (int i = 0; i < processedCount; i++) {
+      FileWrite(handle,
+         IntegerToString(processedSignals[i].ticketID),
+         processedSignals[i].signalType,
+         IntegerToString((long)processedSignals[i].processedAt)
+      );
+   }
+   
+   FileClose(handle);
+}
+
+void LoadProcessedSignals() {
+   if (!FileIsExist(StateFile, FILE_COMMON)) {
+      Print("[Receiver] State file not found - starting fresh.");
+      return;
+   }
+   
+   int handle = FileOpen(StateFile, FILE_READ | FILE_CSV | FILE_COMMON);
+   if (handle == INVALID_HANDLE) {
+      Print("[Receiver] Cannot open state file for reading: ", StateFile);
+      return;
+   }
+
+   processedCount = 0;
+   ArrayResize(processedSignals, 0);
+
+   while (!FileIsEnding(handle)) {
+      string ticketStr = FileReadString(handle);
+      if (ticketStr == "") break;
+      
+      string signalType = FileReadString(handle);
+      string timestampStr = FileReadString(handle);
+      
+      long ticketID = StringToInteger(ticketStr);
+      datetime processedAt = (datetime)StringToInteger(timestampStr);
+      
+      ArrayResize(processedSignals, processedCount + 1);
+      processedSignals[processedCount].ticketID = ticketID;
+      processedSignals[processedCount].signalType = signalType;
+      processedSignals[processedCount].processedAt = processedAt;
+      processedCount++;
+   }
+   
+   FileClose(handle);
+}
+
+void CleanupOldSignals() {
+   // Remove signals older than 24 hours to prevent file bloat
+   datetime cutoff = TimeCurrent() - (24 * 3600);
+   int newCount = 0;
+   
+   for (int i = 0; i < processedCount; i++) {
+      if (processedSignals[i].processedAt > cutoff) {
+         if (newCount != i) {
+            processedSignals[newCount] = processedSignals[i];
+         }
+         newCount++;
+      }
+   }
+   
+   if (newCount < processedCount) {
+      processedCount = newCount;
+      ArrayResize(processedSignals, processedCount);
+      SaveProcessedSignals();
+      Print("[Receiver] Cleaned up old signals. Now tracking ", processedCount, " signals.");
+   }
 }
