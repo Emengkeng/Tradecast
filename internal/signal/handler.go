@@ -60,15 +60,17 @@ func NewHandler(st *store.Store, c *cache.Client, cfg config.AuthConfig, logger 
 	return &Handler{store: st, cache: c, cfg: cfg, logger: logger}
 }
 
-// Receive handles POST /signal.
-// Security layers:
-//  1. HMAC-SHA256 signature verification (proves request came from your MT4)
-//  2. Timestamp freshness check (prevents replay attacks)
-//  3. Server-side deduplication by ticket_id + signal_type
+func normalizeSymbol(s string) string {
+	s = strings.ToUpper(strings.TrimSpace(s))
+	if idx := strings.IndexByte(s, '.'); idx != -1 {
+		return s[:idx]
+	}
+	return s
+}
+
 func (h *Handler) Receive(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	// --- HMAC verification ---
 	signature := r.Header.Get("X-Signal-Signature")
 	timestamp := r.Header.Get("X-Signal-Timestamp")
 	if signature == "" || timestamp == "" {
@@ -87,9 +89,9 @@ func (h *Handler) Receive(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sig.Symbol = strings.ToUpper(strings.TrimSpace(sig.Symbol))
+	// Normalize before HMAC verification — must match what the EA signed
+	sig.Symbol = normalizeSymbol(sig.Symbol)
 
-	// Verify HMAC — this is the core signal authenticity check
 	if err := auth.VerifySignalHMACWithTTL(
 		h.cfg.SignalHMACSecret,
 		strconv.FormatInt(sig.TicketID, 10),
@@ -108,11 +110,9 @@ func (h *Handler) Receive(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// --- Deduplication ---
 	isNew, err := h.cache.SetDedup(ctx, sig.TicketID, string(sig.SignalType), h.cfg.DeduplicateTTL)
 	if err != nil {
 		h.logger.Error("dedup check failed", "err", err)
-		// Safe to proceed — better to process a potential duplicate than drop a real signal
 	}
 	if !isNew {
 		h.logger.Info("duplicate signal ignored", "ticket_id", sig.TicketID, "type", sig.SignalType)
@@ -122,7 +122,6 @@ func (h *Handler) Receive(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// --- Persist ---
 	storeSig := &store.Signal{
 		TicketID:   sig.TicketID,
 		SignalType: string(sig.SignalType),
@@ -140,12 +139,10 @@ func (h *Handler) Receive(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// --- Update Redis signal cache ---
 	if err := h.cache.SetLatestSignal(ctx, sig.Symbol, sig); err != nil {
 		h.logger.Error("set latest signal cache", "err", err, "symbol", sig.Symbol)
 	}
 
-	// --- Enqueue fan-out job ---
 	job := Job{
 		JobID:      uuid.New().String(),
 		SignalID:   signalID,

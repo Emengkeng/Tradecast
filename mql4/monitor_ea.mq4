@@ -107,8 +107,12 @@ void ScanTrades() {
 void SendSignal(long ticket, string sigType, string symbol, string direction,
                 double price, double sl, double tp, double lot) {
 
+   // Normalize symbol: strip broker suffix (.s, .m, .pro, etc.) and uppercase
+   int dotPos = StringFind(symbol, ".");
+   if (dotPos > 0) symbol = StringSubstr(symbol, 0, dotPos);
+   StringToUpper(symbol);
+
    string timestamp = TimeToString(TimeGMT(), TIME_DATE | TIME_MINUTES | TIME_SECONDS);
-   // Convert to RFC3339 format: "2024-01-15T10:30:00Z"
    StringReplace(timestamp, ".", "-");
    StringReplace(timestamp, " ", "T");
    timestamp = timestamp + "Z";
@@ -117,15 +121,15 @@ void SendSignal(long ticket, string sigType, string symbol, string direction,
       IntegerToString(ticket) + ":" + sigType + ":" + symbol + ":" + timestamp);
 
    string payload = "{";
-   payload += "\"ticket_id\":" + IntegerToString(ticket) + ",";
-   payload += "\"signal_type\":\"" + sigType + "\",";
-   payload += "\"symbol\":\"" + symbol + "\",";
-   payload += "\"direction\":\"" + direction + "\",";
-   payload += "\"price\":" + DoubleToString(price, 8) + ",";
+   payload += "\"ticket_id\":"     + IntegerToString(ticket) + ",";
+   payload += "\"signal_type\":\"" + sigType    + "\",";
+   payload += "\"symbol\":\""      + symbol     + "\",";
+   payload += "\"direction\":\""   + direction  + "\",";
+   payload += "\"price\":"         + DoubleToString(price, 8) + ",";
    if (sl > 0) payload += "\"sl\":" + DoubleToString(sl, 8) + ",";
    if (tp > 0) payload += "\"tp\":" + DoubleToString(tp, 8) + ",";
-   payload += "\"lot\":" + DoubleToString(lot, 4) + ",";
-   payload += "\"timestamp\":\"" + timestamp + "\"";
+   payload += "\"lot\":"           + DoubleToString(lot, 4) + ",";
+   payload += "\"timestamp\":\""   + timestamp + "\"";
    payload += "}";
 
    string headers = "Content-Type: application/json\r\n";

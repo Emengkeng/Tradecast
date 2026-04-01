@@ -142,7 +142,11 @@ void ScanTrades() {
 void SendSignal(ulong ticket, string sigType, string symbol, string direction,
                 double price, double sl, double tp, double lot) {
 
-   // Build RFC3339 timestamp
+   // Normalize symbol: strip broker suffix (.s, .m, .pro, etc.) and uppercase
+   int dotPos = StringFind(symbol, ".");
+   if (dotPos > 0) symbol = StringSubstr(symbol, 0, dotPos);
+   StringToUpper(symbol);
+
    MqlDateTime dt;
    TimeToStruct(TimeGMT(), dt);
    string timestamp = StringFormat("%04d-%02d-%02dT%02d:%02d:%02dZ",
@@ -153,7 +157,7 @@ void SendSignal(ulong ticket, string sigType, string symbol, string direction,
       IntegerToString((long)ticket) + ":" + sigType + ":" + symbol + ":" + timestamp);
 
    string payload = "{";
-   payload += "\"ticket_id\":"    + IntegerToString((long)ticket) + ",";
+   payload += "\"ticket_id\":"     + IntegerToString((long)ticket) + ",";
    payload += "\"signal_type\":\"" + sigType    + "\",";
    payload += "\"symbol\":\""      + symbol     + "\",";
    payload += "\"direction\":\""   + direction  + "\",";
